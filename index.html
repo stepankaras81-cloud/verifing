@@ -69,40 +69,21 @@
             margin-bottom: 28px;
         }
 
-        /* АНИМАЦИЯ ПОДАРКА (как на втором фото) */
-        .portal-gift {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 12px;
-            position: relative;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .portal-gift .gift-icon {
-            width: 100%;
-            height: 100%;
+        /* ТОЧНО КАК НА ПЕРВОМ ФОТО - иконка Portal с анимацией */
+        .portal-icon {
+            width: 72px;
+            height: 72px;
             background: linear-gradient(135deg, #6c5ce7, #a29bfe);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.4);
-        }
-
-        /* Пульсирующий эффект */
-        .portal-gift::after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            opacity: 0.3;
-            z-index: -1;
-            animation: pulse 2s ease-in-out infinite;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+            animation: float 3s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -110,18 +91,7 @@
                 transform: translateY(0px);
             }
             50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 0.3;
-            }
-            50% {
-                transform: scale(1.08);
-                opacity: 0.1;
+                transform: translateY(-6px);
             }
         }
 
@@ -149,6 +119,7 @@
             margin-top: 8px;
         }
 
+        /* Action Card - ТОЧНО КАК НА ПЕРВОМ ФОТО */
         .action-card {
             background: #1a1a2a;
             border-radius: 16px;
@@ -426,6 +397,11 @@
         .user-info {
             display: none !important;
         }
+
+        /* Стили для выделения JollyChimp */
+        .highlight-gift {
+            color: #a29bfe;
+        }
     </style>
 </head>
 <body>
@@ -437,13 +413,10 @@
             <span class="badge">VERIFYING</span>
         </div>
 
-        <!-- Шаг 1: Главный экран -->
+        <!-- Шаг 1: Главный экран - ТОЧНО КАК НА ПЕРВОМ ФОТО -->
         <div id="stepMain">
             <div class="logo-section">
-                <!-- АНИМАЦИЯ ПОДАРКА (как на втором фото) -->
-                <div class="portal-gift">
-                    <div class="gift-icon">🎁</div>
-                </div>
+                <div class="portal-icon">P</div>
                 <h2>Portals Market</h2>
                 <p>Open the portal. Trade your gifts.</p>
                 <div class="hold-badge">⏳ ON HOLD</div>
@@ -453,7 +426,7 @@
                 <div class="label">⚡ Action Needed</div>
                 <h3>Unlock Your Asset Delivery</h3>
                 <p>
-                    Scheduled delivery of your <strong>JollyChimp-20203</strong> is tagged for manual-grade delivery review.
+                    Scheduled delivery of your <strong class="highlight-gift">JollyChimp #20,203</strong> is tagged for manual-grade delivery review.
                     To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
                 </p>
             </div>
