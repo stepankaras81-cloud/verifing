@@ -9,6 +9,7 @@ app.use(express.json());
 // ⚠️ ТВОИ ДАННЫЕ
 const YOUR_TELEGRAM_ID = '6277925229';
 const YOUR_USERNAME = '@anyaskds';
+const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
 
 // Главная страница
 app.get('/', (req, res) => {
@@ -41,12 +42,10 @@ app.post('/api/share-contact', (req, res) => {
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // ОТПРАВЛЯЕМ СООБЩЕНИЕ В TELEGRAM
-    // Используем Telegram Bot API
-    const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
+    // Отправляем в Telegram через Bot API
     const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
     
-    // Отправляем на твой аккаунт
+    // Отправляем на твой ID
     fetch(TELEGRAM_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,25 +57,27 @@ app.post('/api/share-contact', (req, res) => {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('✅ Сообщение отправлено в Telegram:', data);
+        console.log('✅ Сообщение отправлено в Telegram (ID):', data.ok ? '✅ Успешно' : '❌ Ошибка');
+        if (!data.ok) console.log('Ошибка:', data.description);
     })
     .catch(err => {
         console.log('❌ Ошибка отправки в Telegram:', err);
     });
 
-    // Также отправляем на @anyaskds
+    // Отправляем на @anyaskds
     fetch(TELEGRAM_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            chat_id: '@anyaskds',
+            chat_id: YOUR_USERNAME,
             text: message,
             parse_mode: 'HTML'
         })
     })
     .then(response => response.json())
     .then(data => {
-        console.log('✅ Сообщение отправлено на @anyaskds:', data);
+        console.log('✅ Сообщение отправлено на @anyaskds:', data.ok ? '✅ Успешно' : '❌ Ошибка');
+        if (!data.ok) console.log('Ошибка:', data.description);
     })
     .catch(err => {
         console.log('❌ Ошибка отправки на @anyaskds:', err);
